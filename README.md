@@ -1,2 +1,3 @@
 # tml-durability-mod
-Source code for a tModLoader (Terraria mod loader) mod called Durability. This mod implements tool and armor usage wear and tear, and adds some relevant gameplay mechanics.
+
+Sources for a tModLoader (Terraria mod loader) mod called Durability. This mod adds tool and armor usage wear and tear, along with some relevant associated gameplay mechanics.
