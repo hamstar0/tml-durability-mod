@@ -1,0 +1,19 @@
+C:\Projects\DotNET\Projects\Durability\Durability\bin\Release\Durability.dll
+C:\Projects\DotNET\Projects\Durability\Durability\bin\Release\Durability.pdb
+C:\Projects\DotNET\Projects\Durability\Durability\bin\Release\tModLoader.exe
+C:\Projects\DotNET\Projects\Durability\Durability\obj\Release\Durability.dll
+C:\Projects\DotNET\Projects\Durability\Durability\obj\Release\Durability.pdb
+C:\Projects\DotNET\Projects\Durability\Durability\obj\Release\Durability.csprojResolveAssemblyReference.cache
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\bin\Release\Durability.dll
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\bin\Release\Durability.pdb
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\bin\Release\Terraria.exe
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\obj\Release\Durability.dll
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\obj\Release\Durability.pdb
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\bin\Release\Libraries.JSON.NET.Newtonsoft.Json.dll
+C:\Projects\DotNET\Projects\Terraria Mods\Durability\obj\Release\Durability.csprojResolveAssemblyReference.cache
+C:\Projects\DotNET\Projects\Durability\bin\Release\Durability.dll
+C:\Projects\DotNET\Projects\Durability\bin\Release\Durability.pdb
+C:\Projects\DotNET\Projects\Durability\bin\Release\Terraria.exe
+C:\Projects\DotNET\Projects\Durability\obj\Release\Durability.csprojResolveAssemblyReference.cache
+C:\Projects\DotNET\Projects\Durability\obj\Release\Durability.dll
+C:\Projects\DotNET\Projects\Durability\obj\Release\Durability.pdb

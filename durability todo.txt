@@ -1,0 +1,45 @@
+Future
+-	Add durability scaling for hard block types
+-	Add durability effect for hammers
+-	Add random drops of very low durability, unrepairable end-game items
+v2.1
+-	Add custom overrides for durability checks of specific items (e.g. bug net)
+-	Set summon items to use a lot of durability
+-	Improve overlay text (align center, color = bar)
+
+v2
+-	Add permanent integrity damage with each repair
+-	Add config option to remove display bars
+-	Set hammer to have 3 uses
+v1.9
+-	Show durability number
+-	Set demonite and hallowed items to have 3/4 durability
+-	Add a table (as a config setting) for individual items
+v1.7
+-	Reduce reforge repair amounts
+-	Implement Smithing Hammer
+	-	Add to merchant shop
+	-	Implement repair for armors
+	-	Create item
+-	Factor in use time for durability rate
+v1.3
+-	Release!
+-	Add config file
+-	Add health bar visual effect for each item use
+-	Specify durability formula in description
+v1
+-	Release!
+-	F&T
+	-	Ensure items destroy after use
+	-	Fix buying or finding items with less than full durability
+	-	Fix ammo-less shooting consuming durability
+-	Add durability for grapple
+-	F&T
+	-	Fix durability for no value items (based on attack or armor value)
+	-	Fix item destroy
+-	In inventory, render overlay of durability state
+-	Destroy item when durability expires (plays sound)
+-	Apply durability to armor
+-	Scale durability based on value
+-	Apply durability to non-block, tool-only items
+-	Create mod base
