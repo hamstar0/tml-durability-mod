@@ -1,8 +1,0 @@
-C:\Projects\DotNET\Projects\Durability\Durability\bin\Debug\Durability.dll
-C:\Projects\DotNET\Projects\Durability\Durability\bin\Debug\Durability.pdb
-C:\Projects\DotNET\Projects\Durability\Durability\bin\Debug\tModLoader.exe
-C:\Projects\DotNET\Projects\Durability\Durability\bin\Debug\Steamworks.NET.dll
-C:\Projects\DotNET\Projects\Durability\Durability\bin\Debug\Newtonsoft.Json.dll
-C:\Projects\DotNET\Projects\Durability\Durability\obj\Debug\Durability.csprojResolveAssemblyReference.cache
-C:\Projects\DotNET\Projects\Durability\Durability\obj\Debug\Durability.dll
-C:\Projects\DotNET\Projects\Durability\Durability\obj\Debug\Durability.pdb
