@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Terraria;
+﻿using Terraria;
+
 
 namespace Utils {
 	public static class PlayerHelper {

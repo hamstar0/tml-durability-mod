@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -19,43 +20,48 @@ namespace Durability {
 		
 		////////////////
 
-		public static int CalculateWearAndTear( Item item ) {
-			int val = item.value;
+		public static int CalculateFullDurability( DurabilityMod mymod, Item item ) {
+			ConfigurationData data = mymod.Config.Data;
+			double val = item.value;
+			double mul = data.DurabilityMultiplier;
+			double add = data.DurabilityAdditive;
+			double hits_per_sec = 60d / ItemHelper.CalculateStandardUseTime( item );
+			bool is_armor = ItemHelper.IsArmor( item );
+			bool is_tool = ItemHelper.IsTool( item );
+
+			if( is_armor && !is_tool ) { hits_per_sec = 1d; }
 
 			if( val == 0 ) {
-				val = (item.damage * 1000) + (item.defense * 1000);
+				val = ((double)item.damage * hits_per_sec * 1000d) + ((double)item.defense * 1000d);
+
+				if( item.rare > 1 ) { val *= (double)item.rare; }
 				if( val <= 0 ) {
-					return 100;
+					return 100 * (item.rare > 0 ? item.rare : 1);    // Fallback
 				}
-				if( item.rare > 0) {
-					val *= item.rare;
-				}
-			}
-			
-			ConfigurationData data = DurabilityMod.Config.Data;
-			float mul = data.DurabilityMultiplier;
-			float exp = data.DurabilityExponent;
-			int add = data.DurabilityAdditive;
-			int durability = (int)(mul * Math.Pow((float)val, exp) / (5 + val)) + add;
-			
-			if( ItemHelper.IsArmor(item) ) {
-				durability = (int)((float)durability * data.ArmorDurabilityMultiplier);
-			}
-			if( ItemHelper.IsTool(item) ) {
-				durability = (int)((float)durability * data.ToolDurabilityMultiplier);
-			}
-			if( data.CustomDurabilityMultipliers.Keys.Contains(item.name) ) {
-				durability = (int)( (float)durability * data.CustomDurabilityMultipliers[item.name] );
 			}
 
-			return durability;
+			double pow = Math.Pow( val, data.DurabilityExponent );
+			double durability = (((hits_per_sec / 4d) * mul * pow) / (5d + val)) + add;
+			
+			if( is_armor ) {
+				durability *= data.ArmorDurabilityMultiplier;
+			}
+			if( is_tool ) {
+				durability *= data.ToolDurabilityMultiplier;
+			}
+			if( data.CustomDurabilityMultipliers.Keys.Contains(item.name) ) {
+				durability *= data.CustomDurabilityMultipliers[item.name];
+			}
+
+			return (int)durability;
 		}
 
 
 		////////////////
 		
 		public bool HasDurability( Item item ) {
-			return (ItemHelper.IsTool( item ) || ItemHelper.IsArmor( item )) && !this.IsUnbreakable;
+			return (ItemHelper.IsTool(item) || ItemHelper.IsArmor(item) || ItemHelper.IsGrapple(item))
+				&& !this.IsUnbreakable;
 		}
 
 		////////////////
@@ -88,25 +94,29 @@ namespace Durability {
 
 		////////////////
 
-		public void Use( Item item, int hits = 1, double scale_override = 0d ) {
+		public void NetReceive( Item item, BinaryReader reader ) {
+			this.WearAndTear = reader.ReadDouble();
+			this.IsUnbreakable = reader.ReadBoolean();
+			this.Repairs = reader.ReadInt32();
+			this.IsInitialized = true;
+		}
+
+		public void NetSend( Item item, BinaryWriter writer ) {
+			writer.Write( this.WearAndTear );
+			writer.Write( this.IsUnbreakable );
+			writer.Write( this.Repairs );
+		}
+
+		////////////////
+
+		public void AddWearAndTear( DurabilityMod mymod, Item item, int hits = 1, double scale_override = 1d ) {
+			if( scale_override == 0 ) { return; }
 			if( !this.HasDurability( item ) || this.ConcurrentUses >= DurabilityItemInfo.MaxConcurrentUses ) { return; }
 
-			ConfigurationData data = DurabilityMod.Config.Data;
-			double wear = (double)hits * (double)data.WearMultiplier;
-			int max = DurabilityItemInfo.CalculateWearAndTear( item );
+			ConfigurationData data = mymod.Config.Data;
+			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 
-			// If we're not using a pick, scale according to use time (supplements item.value)
-			if( scale_override == 0 ) {
-				if( ItemHelper.IsPenetratorMelee(item) ) {
-					scale_override = 1d;
-				} else {
-					scale_override = (double)ItemHelper.CalculateStandardUseTime( item ) / 16d;
-					scale_override = scale_override <= 0d ? 1d : scale_override;
-				}
-			}
-			wear *= scale_override;
-
-			this.WearAndTear += wear;
+			this.WearAndTear += (double)hits * (double)data.GeneralWearAndTearMultiplier * scale_override;
 			this.ConcurrentUses++;
 			this.RecentUseDisplayBarAnimate = 8;
 //Debug.Display[ item.name ] = this.WearAndTear.ToString("N2")+" : "+max.ToString("N2") + " (" + wear.ToString("N2") + ":"+ data.WearMultiplier+":"+ scale_override.ToString("N2") + ")";
@@ -118,13 +128,13 @@ namespace Durability {
 		}
 
 
-		public void RepairMe( Item item ) {
-			ConfigurationData data = DurabilityMod.Config.Data;
+		public void RepairMe( DurabilityMod mymod, Item item ) {
+			ConfigurationData data = mymod.Config.Data;
 			double wear = this.WearAndTear - data.RepairAmount;
-			int max = DurabilityItemInfo.CalculateWearAndTear( item );
+			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 
 			this.Repairs++;
-			this.WearAndTear = Math.Max( wear, (double)this.Repairs * data.RepairDegradationMultiplier );
+			this.WearAndTear = Math.Max( wear, (double)this.Repairs * data.MaxDurabilityLostPerRepair );
 
 			if( this.WearAndTear >= max ) {
 				this.WearAndTear = max;

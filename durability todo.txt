@@ -2,11 +2,26 @@ Future
 -	Add durability scaling for hard block types
 -	Add durability effect for hammers
 -	Add random drops of very low durability, unrepairable end-game items
+-	F&T
+	-	Laser machine gun does not trigger with each fire
 v2.1
--	Add custom overrides for durability checks of specific items (e.g. bug net)
--	Set summon items to use a lot of durability
--	Improve overlay text (align center, color = bar)
+-	Add low durability audio cue
+-	Add custom settings for summon items
+-	Improve overlay text (align to item center, color = bar, show in inventory only)
 
+-	Added config settings and presets
+-	Modify durability computation to factor in use time
+-	F&T
+	-	Grapple use
+	-	Magic weapons trigger with no mana (also cursed?)
+	-	Use Shoot hook for projectile swords
+	-	Harpoon triggers both projectile hit and on fire use
+-	@Test
+-	Remove meteor drop limit
+-	Update config file
+-	Use ModPlayer.PostItemCheck for destroying items
+-	Account for 0 useTime items
+-	Reference mouse item instead of inventory item (if applicable)
 v2
 -	Add permanent integrity damage with each repair
 -	Add config option to remove display bars

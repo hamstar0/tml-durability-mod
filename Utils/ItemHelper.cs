@@ -32,6 +32,10 @@ namespace Utils {
 				!item.vanity;
 		}
 
+		public static bool IsGrapple( Item item ) {
+			return Main.projHook[ item.shoot ];
+		}
+
 
 		public static Item FindFirstPlayerItemOfType( Player player, int item_type ) {
 			Item item = ItemHelper.FindFirstItemOfType( player.inventory, item_type );
@@ -108,7 +112,7 @@ namespace Utils {
 
 		private static IDictionary<int, int> ProjPene = new Dictionary<int, int>();
 
-		public static bool IsPenetratorMelee( Item item ) {
+		public static bool IsPenetrator( Item item ) {
 			if( item.shoot <= 0 ) { return false; }
 
 			if( !ItemHelper.ProjPene.Keys.Contains( item.shoot ) ) {
@@ -124,8 +128,8 @@ namespace Utils {
 		public static int CalculateStandardUseTime( Item item ) {
 			int use_time;
 
-			// No exact science for this one
-			if( item.melee ) {
+			// No exact science for this one (Note: No accommodations made for other mods' non-standard use of useTime!)
+			if( item.melee || item.useTime == 0 ) {
 				use_time = item.useAnimation;
 			} else {
 				use_time = item.useTime;
@@ -139,6 +143,27 @@ namespace Utils {
 			}
 
 			return use_time;
+		}
+
+
+		public static Item GetSelectedItem( Player player ) {
+			if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
+				return Main.mouseItem;
+			}
+			return player.inventory[player.selectedItem];
+		}
+
+
+		public static Item GetGrappleItem( Player player ) {
+			if( ItemHelper.IsGrapple( player.miscEquips[4] ) ) {
+				return player.miscEquips[4];
+			}
+			for( int i = 0; i < 58; i++ ) {
+				if( Main.projHook[ player.inventory[i].shoot ] ) {
+					return player.inventory[i];
+				}
+			}
+			return null;
 		}
 	}
 }

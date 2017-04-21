@@ -30,7 +30,7 @@ namespace Durability.Items {
 
 				if( !ItemHelper.IsArmor(item) ) { continue; }
 
-				var recipe = new SmithedArmorRecipe( this.mod, item );
+				var recipe = new SmithedArmorRecipe( (DurabilityMod)this.mod, item );
 				recipe.AddRecipe();
 			}
 		}
@@ -44,10 +44,10 @@ namespace Durability.Items {
 
 		////////////////
 
-		public SmithedArmorRecipe( Mod mod, Item item ) : base( mod ) {
+		public SmithedArmorRecipe( DurabilityMod mymod, Item item ) : base( mymod ) {
 			this.ItemType = item.type;
 
-			this.AddIngredient( mod, "SmithingHammerItem", 1 );
+			this.AddIngredient( mymod, "SmithingHammerItem", 1 );
 			this.AddTile( 16 );   // Anvil
 
 			//if( item.modItem != null ) {
@@ -62,14 +62,16 @@ namespace Durability.Items {
 		////////////////
 
 		public override int ConsumeItem( int item_type, int quantity ) {
+			var mymod = (DurabilityMod)this.mod;
 			Player player = Main.player[ Main.myPlayer ];
 			Item item = ItemHelper.FindFirstPlayerItemOfType( player, item_type );
 			var info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 			if( this.mod.ItemType("SmithingHammerItem") == item_type ) {
-				int max_wear = DurabilityItemInfo.CalculateWearAndTear( item );
+				int max_wear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 				int wear = (max_wear / 3) + 1;
-				info.Use( item, wear, 1 );
+
+				info.AddWearAndTear( mymod, item, wear, 1 );
 				return 0;
 			} else if( item != null ) {
 				this.PrevInfo = (DurabilityItemInfo)info.Clone();
@@ -79,7 +81,8 @@ namespace Durability.Items {
 		}
 
 		public override bool RecipeAvailable() {
-			return DurabilityMod.Config.Data.CanRepair;
+			var mymod = (DurabilityMod)this.mod;
+			return mymod.Config.Data.CanRepair;
 		}
 
 		public override void OnCraft( Item item ) {
@@ -91,11 +94,12 @@ namespace Durability.Items {
 				ErrorLogger.Log( "Mismatched item type for " + item.name + ": Found " + item.type + ", expected "+this.ItemType );
 				return;
 			}
-			
+
+			var mymod = (DurabilityMod)this.mod;
 			var info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			info.CopyToMe( this.PrevInfo );
 
-			info.RepairMe( item );
+			info.RepairMe( mymod, item );
 		}
 	}
 }
