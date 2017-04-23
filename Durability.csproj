@@ -62,7 +62,7 @@
     <Compile Include="Utils\NPCHelper.cs" />
     <Compile Include="Utils\PlayerHelper.cs" />
     <Compile Include="Utils\UI.cs" />
-    <Compile Include="Utils\Debug.cs" />
+    <Compile Include="Utils\DebugHelper.cs" />
     <Compile Include="Utils\JsonConfig.cs" />
   </ItemGroup>
   <ItemGroup>

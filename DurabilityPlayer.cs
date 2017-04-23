@@ -66,38 +66,40 @@ namespace Durability {
 		public override void Hurt( bool pvp, bool quiet, double damage, int hitDirection, bool crit ) {
 			if( quiet ) { return; }
 
+			Item head_item = player.armor[0];
+			Item body_item = player.armor[1];
+			Item legs_item = player.armor[2];
 			var mymod = (DurabilityMod)this.mod;
+
 			damage = Main.CalculateDamage( (int)damage, this.player.statDefense );
 			if( crit ) { damage *= 2; }
 
 			int dmg = (int)(damage / 10);
 			if( dmg <= 0 ) { dmg = 1; }
 
-			Item armor1 = player.armor[0];
-			if( armor1.type != 0 ) {
-				var armor1_info = armor1.GetModInfo<DurabilityItemInfo>(this.mod);
-				armor1_info.AddWearAndTear( mymod, armor1, dmg );
+
+			if( !head_item.IsAir ) {
+				var head_item_info = head_item.GetModInfo<DurabilityItemInfo>( mymod );
+				head_item_info.AddWearAndTear( mymod, head_item, dmg );
 			}
 
-			Item armor2 = player.armor[1];
-			if( armor2.type != 0 ) {
-				var armor2_info = armor2.GetModInfo<DurabilityItemInfo>(this.mod);
-				armor2_info.AddWearAndTear( mymod, armor2, dmg );
+			if( !body_item.IsAir ) {
+				var body_item_info = body_item.GetModInfo<DurabilityItemInfo>( mymod );
+				body_item_info.AddWearAndTear( mymod, body_item, dmg );
 			}
 
-			Item armor3 = player.armor[2];
-			if( armor3.type != 0 ) {
-				var armor3_info = armor3.GetModInfo<DurabilityItemInfo>(this.mod);
-				armor3_info.AddWearAndTear( mymod, armor3, dmg );
+			if( !legs_item.IsAir ) {
+				var legs_item_info = legs_item.GetModInfo<DurabilityItemInfo>( mymod );
+				legs_item_info.AddWearAndTear( mymod, legs_item, dmg );
 			}
 		}
 
 
-		private void onHitWithProj( Player player, Projectile proj ) {
-			Item item = ItemHelper.GetSelectedItem( this.player );
+		private void onHitWithProj( Projectile proj ) {
+			Item item = this.player.inventory[ this.player.selectedItem ];
 
-			if( !item.IsAir && !proj.minion && item.shoot != 0 ) {
-				if( ( item.melee || item.thrown || proj.type == ProjectileID.Harpoon) && item.noMelee
+			if( item != null && !item.IsAir && !proj.minion && item.shoot != 0 ) {
+				if( (item.melee || item.thrown || proj.type == ProjectileID.Harpoon) && item.noMelee
 						&& proj.type != ProjectileID.NorthPoleSnowflake
 						&& proj.type != ProjectileID.SporeCloud
 						&& proj.type != ProjectileID.ShadowFlameKnife ) {
@@ -112,35 +114,36 @@ namespace Durability {
 		}
 
 		public override void OnHitNPCWithProj( Projectile proj, NPC target, int damage, float knockback, bool crit ) {
-			this.onHitWithProj( this.player, proj );
+			this.onHitWithProj( proj );
 		}
 
 		public override void OnHitPvpWithProj( Projectile proj, Player target, int damage, bool crit ) {
-			this.onHitWithProj( this.player, proj );
+			this.onHitWithProj( proj );
 		}
 
 		public override void OnHitNPC( Item item, NPC target, int damage, float knockback, bool crit ) {
-			if( item.type == 0 ) { return; }
+			if( item == null || item.IsAir ) { return; }
 			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
 		public override void OnHitPvp( Item item, Player target, int damage, bool crit ) {
-			if( item.type == 0 ) { return; }
+			if( item == null || item.IsAir ) { return; }
 			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
-		public override void CatchFish( Item fishingRod, Item bait, int power, int liquidType, int poolSize, int worldLayer, int questFish, ref int caughtType, ref bool junk ) {
-			if( fishingRod.type == 0 ) { return; }
-			var item_info = fishingRod.GetModInfo<DurabilityItemInfo>(this.mod);
-			var mymod = (DurabilityMod)this.mod;
+		public override void CatchFish( Item fishing_rod, Item bait, int power, int liquidType, int poolSize, int worldLayer, int questFish, ref int caughtType, ref bool junk ) {
+			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
 
-			item_info.AddWearAndTear( (DurabilityMod)this.mod, fishingRod, 1, mymod.Config.Data.FishingWearAndTearMultiplier );
+			var mymod = (DurabilityMod)this.mod;
+			var item_info = fishing_rod.GetModInfo<DurabilityItemInfo>( mymod );
+
+			item_info.AddWearAndTear( mymod, fishing_rod, 1, mymod.Config.Data.FishingWearAndTearMultiplier );
 		}
 
 		public override bool Shoot( Item item, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack ) {
-			if( item.IsAir ) { return false; }
+			if( item == null || item.IsAir ) { return false; }
 
 			var mymod = (DurabilityMod)this.mod;
 			var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
@@ -156,8 +159,8 @@ namespace Durability {
 
 		public override bool PreItemCheck() {
 			Player player = this.player;
-			Item item = ItemHelper.GetSelectedItem( player );
-			
+			Item item = player.inventory[player.selectedItem];
+
 			if( !item.IsAir && !player.noItems ) {
 				var mymod = (DurabilityMod)this.mod;
 				var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
@@ -177,8 +180,12 @@ namespace Durability {
 						} else if( item.mech ) {
 							scale = mymod.Config.Data.WireWearAndTearMultiplier;
 						}
-							
+
 						item_info.AddWearAndTear( (DurabilityMod)this.mod, item, 1, scale );
+						if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
+							var mouse_item_info = Main.mouseItem.GetModInfo<DurabilityItemInfo>( this.mod );
+							mouse_item_info.AddWearAndTear( (DurabilityMod)this.mod, Main.mouseItem, 1, scale );
+						}
 					}
 				}
 			}
@@ -187,7 +194,7 @@ namespace Durability {
 		}
 
 		public override void PostItemCheck() {
-			Item item = ItemHelper.GetSelectedItem( this.player );
+			Item item = this.player.inventory[this.player.selectedItem];
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			int max = DurabilityItemInfo.CalculateFullDurability( (DurabilityMod)this.mod, item );
 
@@ -197,30 +204,32 @@ namespace Durability {
 		}
 
 		////////////////
-
+		
 		public override void PreUpdate() {
-			Item item = ItemHelper.GetSelectedItem( this.player );
-			Item armor1 = player.armor[0];
-			Item armor2 = player.armor[1];
-			Item armor3 = player.armor[2];
+			Item curr_item = this.player.inventory[this.player.selectedItem];
+			Item head_item = player.armor[0];
+			Item body_item = player.armor[1];
+			Item legs_item = player.armor[2];
 
-			if( item.type != 0 ) {
-				var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
+			if( curr_item != null && !curr_item.IsAir ) {
+				var item_info = curr_item.GetModInfo<DurabilityItemInfo>( this.mod );
 				item_info.ConcurrentUses = 0;
+
+				item_info.UpdateCriticalState( (DurabilityMod)this.mod, curr_item );
 			}
 
-			if( armor1.type != 0 ) {
-				var armor1_info = armor1.GetModInfo<DurabilityItemInfo>(this.mod);
+			if( !head_item.IsAir ) {
+				var armor1_info = head_item.GetModInfo<DurabilityItemInfo>( this.mod );
 				armor1_info.ConcurrentUses = 0;
 			}
 
-			if( armor2.type != 0 ) {
-				var armor2_info = armor2.GetModInfo<DurabilityItemInfo>(this.mod);
+			if( !body_item.IsAir ) {
+				var armor2_info = body_item.GetModInfo<DurabilityItemInfo>( this.mod );
 				armor2_info.ConcurrentUses = 0;
 			}
 
-			if( armor3.type != 0 ) {
-				var armor3_info = armor3.GetModInfo<DurabilityItemInfo>(this.mod);
+			if( !legs_item.IsAir ) {
+				var armor3_info = legs_item.GetModInfo<DurabilityItemInfo>( this.mod );
 				armor3_info.ConcurrentUses = 0;
 			}
 
@@ -311,8 +320,7 @@ namespace Durability {
 
 			var prev_info = prev_item.GetModInfo<DurabilityItemInfo>( this.mod );
 			var curr_info = curr_item.GetModInfo<DurabilityItemInfo>( this.mod );
-//Main.NewText( "DONE! prev wear: "+ prev_info.WearAndTear+" ("+prev_item.type+"), curr wear: "+ curr_info.WearAndTear+" ("+curr_item.type+")");
-
+			
 			this.ForceCopy = prev_info;
 		}
 	}

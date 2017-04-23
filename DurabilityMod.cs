@@ -23,10 +23,13 @@ namespace Durability {
 		public bool CanRepair = true;
 		public int RepairAmount = 250;
 
-		public float ArmorDurabilityMultiplier = 2f;
-		public float ToolDurabilityMultiplier = 2f;
+		public float NonToolOrArmorMaxDurabilityMultiplier = 1f;
+		public float ArmorMaxDurabilityMultiplier = 2f;
+		public float ToolMaxDurabilityMultiplier = 2f;
 
 		public float MaxDurabilityLostPerRepair = 25f;
+
+		public float CriticalWarningPercent = 0.2f;
 
 		public IDictionary<string, float> CustomDurabilityMultipliers = new Dictionary<string, float> {
 			// Cactus geat very easily acquired
@@ -165,13 +168,15 @@ namespace Durability {
 
 		////////////////
 
-		public void MyOnTileDestroyedEvent( Player player, ushort itemId ) {
+		public void MyOnTileDestroyedEvent( Player player, ushort item_id ) {
 			if( player.itemAnimation > 0 && player.toolTime == 0 && player.controlUseItem ) {
-				Item item = ItemHelper.GetSelectedItem( player );
+				Item item = player.inventory[player.selectedItem];
 
-				if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
-					DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>(this);
-					info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
+				if( item != null && !item.IsAir ) {
+					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
+						DurabilityItemInfo item_info = item.GetModInfo<DurabilityItemInfo>( this );
+						item_info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
+					}
 				}
 			}
 		}
@@ -179,9 +184,9 @@ namespace Durability {
 		////////////////
 
 		public override void PostDrawInterface( SpriteBatch sb ) {
-			Debug.PrintToBatch( sb );
-			Debug.Once = false;
-			Debug.OnceInAWhile--;
+			DebugHelper.PrintToBatch( sb );
+			DebugHelper.Once = false;
+			DebugHelper.OnceInAWhile--;
 		}
 	}
 }

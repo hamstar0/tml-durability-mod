@@ -99,7 +99,7 @@ namespace Durability.Items {
 			var info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			info.CopyToMe( this.PrevInfo );
 
-			info.RepairMe( mymod, item );
+			info.RemoveWearAndTear( mymod, item );
 		}
 	}
 }

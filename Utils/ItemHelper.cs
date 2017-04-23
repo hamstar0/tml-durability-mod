@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 
+
 namespace Utils {
 	public static class ItemHelper {
 		public static bool IsTool( Item item ) {
@@ -19,7 +20,8 @@ namespace Utils {
 				!item.accessory &&
 				!item.potion &&
 				!item.consumable &&
-				!item.vanity;
+				!item.vanity &&
+				item.type != 849;	// Actuators are not consumable, apparently
 		}
 
 		public static bool IsArmor( Item item ) {
@@ -89,7 +91,7 @@ namespace Utils {
 				}
 
 				if( prev_item.type != curr_item.type || prev_item.stack != curr_item.stack ) {
-					changes[i] = prev_item.type == 0 || prev_item.stack < curr_item.stack;
+					changes[i] = prev_item.IsAir || prev_item.stack < curr_item.stack;
 
 					// Skip coins
 					if( changes[i] ) {
@@ -134,26 +136,20 @@ namespace Utils {
 			} else {
 				use_time = item.useTime;
 				if( item.reuseDelay > 0 ) { use_time = (use_time + item.reuseDelay) / 2; }
+			}
 
-				if( item.useTime <= 0 || item.useTime == 100 ) {    // 100 = default amount
-					if( item.useAnimation > 0 && item.useAnimation != 100 ) {   // 100 = default amount
-						use_time = item.useAnimation;
-					}
+			if( item.useTime <= 0 || item.useTime == 100 ) {    // 100 = default amount
+				if( item.useAnimation > 0 && item.useAnimation != 100 ) {   // 100 = default amount
+					use_time = item.useAnimation;
+				} else {
+					use_time = 100;
 				}
 			}
 
 			return use_time;
 		}
 
-
-		public static Item GetSelectedItem( Player player ) {
-			if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-				return Main.mouseItem;
-			}
-			return player.inventory[player.selectedItem];
-		}
-
-
+		
 		public static Item GetGrappleItem( Player player ) {
 			if( ItemHelper.IsGrapple( player.miscEquips[4] ) ) {
 				return player.miscEquips[4];

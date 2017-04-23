@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Utils;
+
 
 namespace Durability {
     class DurabilityGlobalItem : GlobalItem {
@@ -15,26 +17,26 @@ namespace Durability {
 
 
 		public override void LoadLegacy( Item item, BinaryReader reader ) {
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>( this.mod );
-			if( info != null ) {
-				info.Initialize( item, (int)reader.ReadInt32() );
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			if( item_info != null ) {
+				item_info.Initialize( item, (int)reader.ReadInt32() );
 			}
 		}
 
 		public override void Load( Item item, TagCompound tag ) {
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>( this.mod );
-			if( info != null ) {
-				info.Initialize( item, tag.GetDouble("wear_and_tear_d") );
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			if( item_info != null ) {
+				item_info.Initialize( item, tag.GetDouble("wear_and_tear_d") );
 			}
 		}
 
 		public override TagCompound Save( Item item ) {
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>( this.mod );
-			if( info == null ) {
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			if( item_info == null ) {
 				return new TagCompound { };
 			}
 			return new TagCompound {
-				{"wear_and_tear_d", (double)info.WearAndTear}
+				{"wear_and_tear_d", (double)item_info.WearAndTear}
 			};
 		}
 
@@ -50,25 +52,40 @@ namespace Durability {
 
 		////////////////
 
-		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale ) {
-			if( item.type == 0 ) { return; }
+		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color draw_color, Color item_color, Vector2 origin, float scale ) {
+			if( item == null || item.IsAir ) { return; }
 
 			var mymod = (DurabilityMod)this.mod;
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>(this.mod);
-			if( !info.HasDurability( item ) ) { return; }
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			if( !item_info.HasDurability( item ) ) { return; }
 
 			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
-			Vector2 pos = new Vector2( position.X + ((frame.Width / 2) * scale), position.Y + ((frame.Height - 6) * scale) );
-			float alpha = 0.6f + (0.05f * info.RecentUseDisplayBarAnimate);
-			if( info.RecentUseDisplayBarAnimate > 0 ) {
-				info.RecentUseDisplayBarAnimate--;
+			int hp = max - (int)item_info.WearAndTear;
+			float alpha = 0.6f + (0.05f * item_info.RecentUseDisplayBarAnimate);
+			Color color = UI.GetHealthBarColor( hp, max, alpha );
+			float pos_x = position.X + (((float)frame.Width / 2f) * scale);
+			float pos_y = position.Y + (((float)frame.Height / 2f) * scale);
+
+			if( item_info.RecentUseDisplayBarAnimate > 0 ) {
+				item_info.RecentUseDisplayBarAnimate--;
 			}
 
 			if( mymod.Config.Data.ShowBar ) {
-				UI.DrawHealthBar( sb, pos.X, pos.Y, max - (int)info.WearAndTear, max, alpha, scale );
+				UI.DrawHealthBar( sb, pos_x + 1f, pos_y + 5f, max - (int)item_info.WearAndTear, max, color, 0.8f );
 			}
+
 			if( mymod.Config.Data.ShowNumbers ) {
-				UI.DrawHealthText( sb, pos.X, pos.Y, max - (int)info.WearAndTear, alpha );
+				var player = Main.player[ Main.myPlayer ];
+				Item tooltip = Main.toolTip;
+				Item selected = player.inventory[ player.selectedItem ];
+				Item mouse = Main.mouseItem;
+
+				if( (tooltip != null && !tooltip.IsAir && !tooltip.IsNotTheSameAs(item))
+						|| (selected != null && !selected.IsAir && !selected.IsNotTheSameAs(item))
+						|| (mouse != null && !mouse.IsAir && !mouse.IsNotTheSameAs(item)) ) {
+					Color t_color = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
+					UI.DrawHealthText( sb, pos_x, pos_y, hp, t_color );
+				}
 			}
 		}
 
@@ -77,30 +94,30 @@ namespace Durability {
 		private DurabilityItemInfo CurrentReforgeDurability = null;
 
 		public override void PreReforge( Item item ) {
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>(this.mod);
-			if( info.HasDurability( item ) ) {
-				this.CurrentReforgeDurability = info;
+			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
+			if( item_info.HasDurability( item ) ) {
+				this.CurrentReforgeDurability = item_info;
 			}
 		}
 
 		public override void PostReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
-			if( this.CurrentReforgeDurability != null && info.HasDurability(item) ) {
-				info.CopyToMe( this.CurrentReforgeDurability );
+			if( this.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
+				item_info.CopyToMe( this.CurrentReforgeDurability );
 
 				if( mymod.Config.Data.CanRepair ) {
-					info.RepairMe( mymod, item );
+					item_info.RemoveWearAndTear( mymod, item );
 				}
 			}
 			this.CurrentReforgeDurability = null;
 		}
 
 		public override void OnCraft( Item item, Recipe recipe ) {
-			DurabilityItemInfo info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			DurabilityItemInfo item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
-			info.IsUnbreakable = false;
+			item_info.IsUnbreakable = false;
 			//info.IsUnbreakable = info.HasDurability( item );	// Doesn't work?
 		}
 	}

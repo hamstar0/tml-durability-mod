@@ -6,33 +6,12 @@ using Terraria;
 
 namespace Utils {
 	public class UI {
-		public static void DrawHealthText( SpriteBatch sb, float x, float y, int hp, float alpha ) {
-			int offset_x = (int)((Math.Log10( (double)hp ) + 1d) * 3.3d);
-			byte c = (byte)MathHelper.Clamp( (alpha+0.2f) * 254f, 0f, 255f );
-
-			Vector2 pos = new Vector2( x - offset_x, y - 4 );
-			Color color = new Color( c, c, c, c );
-
-			sb.DrawString( Main.fontItemStack, hp.ToString(), pos, Color.Black, 0f, new Vector2( -1f, -1f ), 0.75f, SpriteEffects.None, 1f );
-			sb.DrawString( Main.fontItemStack, hp.ToString(), pos, color, 0f, new Vector2( 0f, 0f ), 0.72f, SpriteEffects.None, 1f );
-		}
-
-
-		public static void DrawHealthBar( SpriteBatch sb, float x, float y, int hp, int max_hp, float alpha, float scale = 1f ) {
-			if( hp <= 0 ) {
-				return;
-			}
+		public static Color GetHealthBarColor( int hp, int max_hp, float alpha ) {
+			if( hp <= 0 ) { return Color.Black; }
 
 			float ratio = (float)hp / (float)max_hp;
-			if( ratio > 1f ) {
-				ratio = 1f;
-			}
+			if( ratio > 1f ) { ratio = 1f; }
 			ratio -= 0.1f;
-
-			int ratio_large = (int)(36f * ratio);
-			float offset_x = x - (18f * scale);
-			float offset_y = y + 4;
-			float depth = 1f;
 
 			float r;
 			float g;
@@ -49,17 +28,44 @@ namespace Utils {
 			r = r * alpha * 0.95f;
 			g = g * alpha * 0.95f;
 			a = a * alpha * 0.95f;
-			if( r < 0f ) { r = 0f; }
-			if( r > 255f ) { r = 255f; }
-			if( g < 0f ) { g = 0f; }
-			if( g > 255f ) { g = 255f; }
-			if( a < 0f ) { a = 0f; }
-			if( a > 255f ) { a = 255f; }
+			if( r < 0f ) { r = 0f; } else if( r > 255f ) { r = 255f; }
+			if( g < 0f ) { g = 0f; } else if( g > 255f ) { g = 255f; }
+			if( a < 0f ) { a = 0f; } else if( a > 255f ) { a = 255f; }
 
-			Color color = new Color((int)((byte)r), (int)((byte)g), (int)((byte)b), (int)((byte)a));
-			if( ratio_large < 3 ) {
-				ratio_large = 3;
-			}
+			return new Color( (int)((byte)r), (int)((byte)g), (int)((byte)b), (int)((byte)a) );
+		}
+
+
+		public static Vector2 MeasureHealthText( string text ) {
+			return Main.fontItemStack.MeasureString( text ) * 0.75f;
+		}
+
+
+		public static void DrawHealthText( SpriteBatch sb, float x, float y, int hp, Color color ) {
+			int offset_x = (int)( (Math.Log10( (double)hp ) + 1d) * 3.3d );
+			//byte c = (byte)MathHelper.Clamp( (alpha+0.2f) * 254f, 0f, 255f );
+
+			Vector2 pos = new Vector2( x - offset_x, y - 4 );
+			//Color color = new Color( c, c, c, c );
+
+			sb.DrawString( Main.fontItemStack, hp.ToString(), pos, Color.Black, 0f, new Vector2( -1f, -1f ), 0.85f, SpriteEffects.None, 1f );
+			sb.DrawString( Main.fontItemStack, hp.ToString(), pos, color, 0f, new Vector2( 0f, 0f ), 0.82f, SpriteEffects.None, 1f );
+		}
+
+
+		public static void DrawHealthBar( SpriteBatch sb, float x, float y, int hp, int max_hp, Color color, float scale = 1f ) {
+			if( hp <= 0 ) { return; }
+
+			float ratio = (float)hp / (float)max_hp;
+			if( ratio > 1f ) { ratio = 1f; }
+			ratio -= 0.1f;
+
+			int ratio_large = (int)(36f * ratio);
+			float offset_x = x - (18f * scale);
+			float offset_y = y + 4;
+			float depth = 1f;
+
+			if( ratio_large < 3 ) { ratio_large = 3; }
 
 			Vector2 pos;
 			Rectangle? rect;

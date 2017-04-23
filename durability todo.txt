@@ -4,11 +4,11 @@ Future
 -	Add random drops of very low durability, unrepairable end-game items
 -	F&T
 	-	Laser machine gun does not trigger with each fire
-v2.1
--	Add low durability audio cue
--	Add custom settings for summon items
--	Improve overlay text (align to item center, color = bar, show in inventory only)
 
+v2.1
+-	Add low durability audio cue + message
+-	Improve overlay text (align to item center, color = bar, show in inventory only)
+-	Add custom settings for item types
 -	Added config settings and presets
 -	Modify durability computation to factor in use time
 -	F&T
