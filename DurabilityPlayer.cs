@@ -212,6 +212,8 @@ namespace Durability {
 			Item legs_item = player.armor[2];
 
 			if( curr_item != null && !curr_item.IsAir ) {
+				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { curr_item = Main.mouseItem; }
+
 				var item_info = curr_item.GetModInfo<DurabilityItemInfo>( this.mod );
 				item_info.ConcurrentUses = 0;
 
