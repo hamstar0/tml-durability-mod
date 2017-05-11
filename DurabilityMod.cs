@@ -17,7 +17,7 @@ namespace Durability {
 		public string VersionSinceUpdate = "";
 		
 		public int DurabilityAdditive = 50;
-		public float DurabilityMultiplier = 1f;
+		public float DurabilityMultiplier = 0.71f;
 		public float DurabilityExponent = 1.54f;
 
 		public bool CanRepair = true;
@@ -34,7 +34,7 @@ namespace Durability {
 		public IDictionary<string, float> CustomDurabilityMultipliers = new Dictionary<string, float> {
 			// Cactus geat very easily acquired
 			{ "Cactus Sword", 0.7f },
-			{ "Cactus Pickaxe", 0.6f },
+			{ "Cactus Pickaxe", 0.7f },
 			//{ "Cactus Helmet", 0.7f },
 			//{ "Cactus Breastplate", 0.7f },
 			//{ "Cactus Leggings", 0.7f },
@@ -92,7 +92,7 @@ namespace Durability {
 		public float WeaponWearAndTearMultiplier = 1f;
 		public float FishingWearAndTearMultiplier = 1f;
 		public float GrappleWearAndTearMultiplier = 1f;
-		public float SummonWearAndTearMultiplier = 10f;
+		public float SummonWearAndTearMultiplier = 40f;
 		public float WireWearAndTearMultiplier = 1f;
 		public float MeleeProjectileWearAndTearMultiplier = 1f;
 	}
@@ -100,7 +100,7 @@ namespace Durability {
 
 
 	public class DurabilityMod : Mod {
-		public readonly static Version ConfigVersion = new Version( 2, 1, 0 );
+		public readonly static Version ConfigVersion = new Version( 2, 2, 0 );
 		public JsonConfig<ConfigurationData> Config { get; private set; }
 
 
@@ -117,12 +117,13 @@ namespace Durability {
 
 
 		private void LoadConfig() {
-			var old_config = new JsonConfig<ConfigurationData>( this.Config.FileName, "", new ConfigurationData() );
+			var old_config = new JsonConfig<ConfigurationData>( "Durability 1.6.0.json", "", new ConfigurationData() );
 
 			// Update old config to new location
 			if( old_config.LoadFile() ) {
 				old_config.DestroyFile();
 				old_config.SetFilePath( this.Config.FileName, "Mod Configs" );
+				old_config.Data.VersionSinceUpdate = "1.6.0";
 				this.Config = old_config;
 			} else if( !this.Config.LoadFile() ) {
 				this.Config.SaveFile();
@@ -133,13 +134,15 @@ namespace Durability {
 				new Version();
 
 			if( vers_since < DurabilityMod.ConfigVersion ) {
+				var new_config = new ConfigurationData();
 				ErrorLogger.Log( "Durability updated to " + DurabilityMod.ConfigVersion.ToString() );
-
-				if( vers_since < new Version( 2, 1, 0 ) ) {
-					var custom_muls = new ConfigurationData().CustomDurabilityMultipliers;
-					foreach( var kv in custom_muls ) {
+				
+				if( vers_since < new Version(2, 2, 0) ) {
+					foreach( var kv in new_config.CustomDurabilityMultipliers ) {
 						this.Config.Data.CustomDurabilityMultipliers[kv.Key] = kv.Value;
 					}
+					this.Config.Data.DurabilityMultiplier = new_config.DurabilityMultiplier;
+					this.Config.Data.SummonWearAndTearMultiplier = new_config.SummonWearAndTearMultiplier;
 				}
 
 				this.Config.Data.VersionSinceUpdate = DurabilityMod.ConfigVersion.ToString();

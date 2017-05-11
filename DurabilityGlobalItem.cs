@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
@@ -19,14 +20,16 @@ namespace Durability {
 		public override void LoadLegacy( Item item, BinaryReader reader ) {
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			if( item_info != null ) {
-				item_info.Initialize( item, (int)reader.ReadInt32() );
+				item_info.Initialize( item, (int)reader.ReadInt32(), 0 );
 			}
 		}
 
 		public override void Load( Item item, TagCompound tag ) {
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			if( item_info != null ) {
-				item_info.Initialize( item, tag.GetDouble("wear_and_tear_d") );
+				double wear = tag.GetDouble( "wear_and_tear_d" );
+				int repairs = tag.GetInt( "repairs" );
+				item_info.Initialize( item, wear, repairs );
 			}
 		}
 
@@ -36,7 +39,8 @@ namespace Durability {
 				return new TagCompound { };
 			}
 			return new TagCompound {
-				{"wear_and_tear_d", (double)item_info.WearAndTear}
+				{"wear_and_tear_d", (double)item_info.WearAndTear},
+				{"repairs", (int)item_info.Repairs }
 			};
 		}
 
@@ -88,6 +92,19 @@ namespace Durability {
 				}
 			}
 		}
+		
+		public override void ModifyTooltips( Item item, List<TooltipLine> tooltips ) {
+			var mymod = (DurabilityMod)this.mod;
+			var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
+			int max_loss = item_info.CalculateDurabilityLoss( mymod );
+			if( max_loss == 0 ) {
+				return;
+			}
+
+			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: "+max_loss );
+			tip.overrideColor = Color.Red;
+			tooltips.Add( tip );
+		}
 
 		////////////////
 
@@ -108,7 +125,7 @@ namespace Durability {
 				item_info.CopyToMe( this.CurrentReforgeDurability );
 
 				if( mymod.Config.Data.CanRepair ) {
-					item_info.RemoveWearAndTear( mymod, item );
+					item_info.RepairMe( mymod, item );
 				}
 			}
 			this.CurrentReforgeDurability = null;

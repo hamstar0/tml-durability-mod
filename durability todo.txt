@@ -5,6 +5,12 @@ Future
 -	F&T
 	-	Laser machine gun does not trigger with each fire
 
+v2.2
+-	Fixed repairs not saving with item
+-	Add tooltip for items with max durability loss
+-	Tweaked various config settings
+-	Disable repair recipes when at full durability
+-	Remove old config (Durability 1.6.0.json)
 v2.1
 -	Add low durability audio cue + message
 -	Improve overlay text (align to item center, color = bar, show in inventory only)

@@ -65,16 +65,16 @@ namespace Durability.Items {
 			var mymod = (DurabilityMod)this.mod;
 			Player player = Main.player[ Main.myPlayer ];
 			Item item = ItemHelper.FindFirstPlayerItemOfType( player, item_type );
-			var info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 			if( this.mod.ItemType("SmithingHammerItem") == item_type ) {
 				int max_wear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 				int wear = (max_wear / 3) + 1;
 
-				info.AddWearAndTear( mymod, item, wear, 1 );
+				item_info.AddWearAndTear( mymod, item, wear, 1 );
 				return 0;
 			} else if( item != null ) {
-				this.PrevInfo = (DurabilityItemInfo)info.Clone();
+				this.PrevInfo = (DurabilityItemInfo)item_info.Clone();
 			}
 
 			return quantity;
@@ -82,7 +82,18 @@ namespace Durability.Items {
 
 		public override bool RecipeAvailable() {
 			var mymod = (DurabilityMod)this.mod;
-			return mymod.Config.Data.CanRepair;
+			bool can_repair = mymod.Config.Data.CanRepair;
+
+			if( can_repair && Main.netMode != 2 ) {
+				Player player = Main.player[Main.myPlayer];
+				Item item = ItemHelper.FindFirstPlayerItemOfType( player, this.ItemType );
+
+				if( item != null && !item.IsAir ) {
+					var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
+					can_repair = item_info.CanRepair( mymod, item );
+				}
+			}
+			return can_repair;
 		}
 
 		public override void OnCraft( Item item ) {
@@ -96,10 +107,10 @@ namespace Durability.Items {
 			}
 
 			var mymod = (DurabilityMod)this.mod;
-			var info = item.GetModInfo<DurabilityItemInfo>( this.mod );
-			info.CopyToMe( this.PrevInfo );
+			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			item_info.CopyToMe( this.PrevInfo );
 
-			info.RemoveWearAndTear( mymod, item );
+			item_info.RepairMe( mymod, item );
 		}
 	}
 }
