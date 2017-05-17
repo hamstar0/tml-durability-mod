@@ -66,10 +66,10 @@ namespace Durability {
 		public override void Hurt( bool pvp, bool quiet, double damage, int hitDirection, bool crit ) {
 			if( quiet ) { return; }
 
+			var mymod = (DurabilityMod)this.mod;
 			Item head_item = player.armor[0];
 			Item body_item = player.armor[1];
 			Item legs_item = player.armor[2];
-			var mymod = (DurabilityMod)this.mod;
 
 			damage = Main.CalculateDamage( (int)damage, this.player.statDefense );
 			if( crit ) { damage *= 2; }
@@ -81,16 +81,19 @@ namespace Durability {
 			if( !head_item.IsAir ) {
 				var head_item_info = head_item.GetModInfo<DurabilityItemInfo>( mymod );
 				head_item_info.AddWearAndTear( mymod, head_item, dmg );
+				head_item_info.UpdateCriticalState( (DurabilityMod)this.mod, head_item );
 			}
 
 			if( !body_item.IsAir ) {
 				var body_item_info = body_item.GetModInfo<DurabilityItemInfo>( mymod );
 				body_item_info.AddWearAndTear( mymod, body_item, dmg );
+				body_item_info.UpdateCriticalState( (DurabilityMod)this.mod, body_item );
 			}
 
 			if( !legs_item.IsAir ) {
 				var legs_item_info = legs_item.GetModInfo<DurabilityItemInfo>( mymod );
 				legs_item_info.AddWearAndTear( mymod, legs_item, dmg );
+				legs_item_info.UpdateCriticalState( (DurabilityMod)this.mod, legs_item );
 			}
 		}
 
@@ -133,7 +136,7 @@ namespace Durability {
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
-		public override void CatchFish( Item fishing_rod, Item bait, int power, int liquidType, int poolSize, int worldLayer, int questFish, ref int caughtType, ref bool junk ) {
+		public override void CatchFish( Item fishing_rod, Item bait, int power, int liquid_type, int pool_size, int world_layer, int quest_fish, ref int caught_type, ref bool junk ) {
 			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
 
 			var mymod = (DurabilityMod)this.mod;
@@ -167,12 +170,13 @@ namespace Durability {
 
 				if( item_info.HasDurability(item) ) {
 					bool is_harpoon = item.type == 160;
+					bool is_fishing_pole = item.fishingPole > 0;
 					bool has_ammo = player.HasAmmo( item, true );	// Somehow works with harpoons and magic (?)
 					bool cant_magic = /*item.magic &&*/ player.statMana < item.mana;
 					bool trigger = (player.itemTime == 0 && player.controlUseItem && player.releaseUseItem) ||
 						(player.itemTime == 1 && player.controlUseItem && item.autoReuse);
 
-					if( trigger && !item.melee && has_ammo && !is_harpoon && !cant_magic ) {
+					if( trigger && !item.melee && has_ammo && !is_fishing_pole && !is_harpoon && !cant_magic ) {
 						double scale = mymod.Config.Data.WeaponWearAndTearMultiplier;
 
 						if( item.summon ) {
@@ -221,18 +225,18 @@ namespace Durability {
 			}
 
 			if( !head_item.IsAir ) {
-				var armor1_info = head_item.GetModInfo<DurabilityItemInfo>( this.mod );
-				armor1_info.ConcurrentUses = 0;
+				var head_item_info = head_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				head_item_info.ConcurrentUses = 0;
 			}
 
 			if( !body_item.IsAir ) {
-				var armor2_info = body_item.GetModInfo<DurabilityItemInfo>( this.mod );
-				armor2_info.ConcurrentUses = 0;
+				var body_item_info = body_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				body_item_info.ConcurrentUses = 0;
 			}
 
 			if( !legs_item.IsAir ) {
-				var armor3_info = legs_item.GetModInfo<DurabilityItemInfo>( this.mod );
-				armor3_info.ConcurrentUses = 0;
+				var legs_item_info = legs_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				legs_item_info.ConcurrentUses = 0;
 			}
 
 			this.CheckPurchaseChanges();

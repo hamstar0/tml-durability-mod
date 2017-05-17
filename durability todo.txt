@@ -4,7 +4,15 @@ Future
 -	Add random drops of very low durability, unrepairable end-game items
 -	F&T
 	-	Laser machine gun does not trigger with each fire
+-	Lower sell value of low durability items
+v2.3
+-	Modified fishing durability use (catches only)
+-	Set ore weapons to have higher durability
 
+-	Raise durability formula's exponent value
+-	Normalize custom durability adjustments more (especially meteor)
+-	Give low durability warnings for armor
+-	Remove redundant generic durability use of fishing poles
 v2.2
 -	Fixed repairs not saving with item
 -	Add tooltip for items with max durability loss
