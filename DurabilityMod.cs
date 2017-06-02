@@ -15,6 +15,8 @@ namespace Durability {
 	//	'durability'		Damage before tool or armor breaks.
 	public class ConfigurationData {
 		public string VersionSinceUpdate = "";
+
+		public bool Enabled = true;
 		
 		public int DurabilityAdditive = 50;
 		public float DurabilityMultiplier = 0.71f;
@@ -273,7 +275,7 @@ namespace Durability {
 
 
 	public class DurabilityMod : Mod {
-		public readonly static Version ConfigVersion = new Version( 2, 3, 0 );
+		public readonly static Version ConfigVersion = new Version( 2, 3, 1 );
 		public JsonConfig<ConfigurationData> Config { get; private set; }
 
 
@@ -300,29 +302,29 @@ namespace Durability {
 				this.Config = old_config;
 			} else if( !this.Config.LoadFile() ) {
 				this.Config.SaveFile();
-			}
+			} else {
+				Version vers_since = this.Config.Data.VersionSinceUpdate != "" ?
+					new Version( this.Config.Data.VersionSinceUpdate ) :
+					new Version();
 
-			Version vers_since = this.Config.Data.VersionSinceUpdate != "" ?
-				new Version( this.Config.Data.VersionSinceUpdate ) :
-				new Version();
+				if( vers_since < DurabilityMod.ConfigVersion ) {
+					var new_config = new ConfigurationData();
+					ErrorLogger.Log( "Durability updated to " + DurabilityMod.ConfigVersion.ToString() );
 
-			if( vers_since < DurabilityMod.ConfigVersion ) {
-				var new_config = new ConfigurationData();
-				ErrorLogger.Log( "Durability updated to " + DurabilityMod.ConfigVersion.ToString() );
-				
-				if( vers_since < new Version(2, 2, 0) ) {
-					this.Config.Data.DurabilityMultiplier = new_config.DurabilityMultiplier;
-					this.Config.Data.SummonWearAndTearMultiplier = new_config.SummonWearAndTearMultiplier;
-				}
-				if( vers_since < new Version(2, 3, 0) ) {
-					foreach( var kv in new_config.CustomDurabilityMultipliers ) {
-						this.Config.Data.CustomDurabilityMultipliers[kv.Key] = kv.Value;
+					if( vers_since < new Version( 2, 2, 0 ) ) {
+						this.Config.Data.DurabilityMultiplier = new_config.DurabilityMultiplier;
+						this.Config.Data.SummonWearAndTearMultiplier = new_config.SummonWearAndTearMultiplier;
 					}
-					this.Config.Data.DurabilityExponent = new_config.DurabilityExponent;
-				}
+					if( vers_since < new Version( 2, 3, 0 ) ) {
+						foreach( var kv in new_config.CustomDurabilityMultipliers ) {
+							this.Config.Data.CustomDurabilityMultipliers[kv.Key] = kv.Value;
+						}
+						this.Config.Data.DurabilityExponent = new_config.DurabilityExponent;
+					}
 
-				this.Config.Data.VersionSinceUpdate = DurabilityMod.ConfigVersion.ToString();
-				this.Config.SaveFile();
+					this.Config.Data.VersionSinceUpdate = DurabilityMod.ConfigVersion.ToString();
+					this.Config.SaveFile();
+				}
 			}
 		}
 
@@ -348,6 +350,8 @@ namespace Durability {
 		////////////////
 
 		public void MyOnTileDestroyedEvent( Player player, ushort item_id ) {
+			if( !this.Config.Data.Enabled ) { return; }
+
 			if( player.itemAnimation > 0 && player.toolTime == 0 && player.controlUseItem ) {
 				Item item = player.inventory[player.selectedItem];
 
@@ -363,6 +367,8 @@ namespace Durability {
 		////////////////
 
 		public override void PostDrawInterface( SpriteBatch sb ) {
+			if( !this.Config.Data.Enabled ) { return; }
+
 			DebugHelper.PrintToBatch( sb );
 			DebugHelper.Once = false;
 			DebugHelper.OnceInAWhile--;

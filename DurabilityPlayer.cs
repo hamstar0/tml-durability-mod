@@ -64,9 +64,10 @@ namespace Durability {
 		
 		//public override void PostHurt( bool pvp, bool quiet, double damage, int hitDirection, bool crit ) {
 		public override void Hurt( bool pvp, bool quiet, double damage, int hitDirection, bool crit ) {
-			if( quiet ) { return; }
-
 			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+			if( quiet ) { return; }
+			
 			Item head_item = player.armor[0];
 			Item body_item = player.armor[1];
 			Item legs_item = player.armor[2];
@@ -117,38 +118,52 @@ namespace Durability {
 		}
 
 		public override void OnHitNPCWithProj( Projectile proj, NPC target, int damage, float knockback, bool crit ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			this.onHitWithProj( proj );
 		}
 
 		public override void OnHitPvpWithProj( Projectile proj, Player target, int damage, bool crit ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			this.onHitWithProj( proj );
 		}
 
 		public override void OnHitNPC( Item item, NPC target, int damage, float knockback, bool crit ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
+
 			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
 		public override void OnHitPvp( Item item, Player target, int damage, bool crit ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
+
 			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
 		public override void CatchFish( Item fishing_rod, Item bait, int power, int liquid_type, int pool_size, int world_layer, int quest_fish, ref int caught_type, ref bool junk ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
 			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
 
-			var mymod = (DurabilityMod)this.mod;
 			var item_info = fishing_rod.GetModInfo<DurabilityItemInfo>( mymod );
 
 			item_info.AddWearAndTear( mymod, fishing_rod, 1, mymod.Config.Data.FishingWearAndTearMultiplier );
 		}
 
 		public override bool Shoot( Item item, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return base.Shoot(item, ref position, ref speedX, ref speedY, ref type, ref damage, ref knockBack); }
 			if( item == null || item.IsAir ) { return false; }
 
-			var mymod = (DurabilityMod)this.mod;
 			var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
 			if( !item_info.HasDurability( item ) ) { return true; }
 
@@ -161,11 +176,13 @@ namespace Durability {
 
 
 		public override bool PreItemCheck() {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return base.PreItemCheck(); }
+
 			Player player = this.player;
 			Item item = player.inventory[player.selectedItem];
 
 			if( !item.IsAir && !player.noItems ) {
-				var mymod = (DurabilityMod)this.mod;
 				var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 				if( item_info.HasDurability(item) ) {
@@ -198,6 +215,9 @@ namespace Durability {
 		}
 
 		public override void PostItemCheck() {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			Item item = this.player.inventory[this.player.selectedItem];
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			int max = DurabilityItemInfo.CalculateFullDurability( (DurabilityMod)this.mod, item );
@@ -210,6 +230,9 @@ namespace Durability {
 		////////////////
 		
 		public override void PreUpdate() {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			Item curr_item = this.player.inventory[this.player.selectedItem];
 			Item head_item = player.armor[0];
 			Item body_item = player.armor[1];

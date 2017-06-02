@@ -82,6 +82,8 @@ namespace Durability.Items {
 
 		public override bool RecipeAvailable() {
 			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return false; }
+
 			bool can_repair = mymod.Config.Data.CanRepair;
 
 			if( can_repair && Main.netMode != 2 ) {

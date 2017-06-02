@@ -5,10 +5,13 @@ Future
 -	F&T
 	-	Laser machine gun does not trigger with each fire
 -	Lower sell value of low durability items
+-	Set broken items to be rendered useless; not destroyed
+v2.3.1
+-	Add 'Enabled' config setting
+
 v2.3
 -	Modified fishing durability use (catches only)
 -	Set ore weapons to have higher durability
-
 -	Raise durability formula's exponent value
 -	Normalize custom durability adjustments more (especially meteor)
 -	Give low durability warnings for armor

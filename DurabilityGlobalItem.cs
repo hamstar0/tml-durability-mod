@@ -57,9 +57,10 @@ namespace Durability {
 		////////////////
 
 		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color draw_color, Color item_color, Vector2 origin, float scale ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var mymod = (DurabilityMod)this.mod;
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 			if( !item_info.HasDurability( item ) ) { return; }
 
@@ -95,11 +96,11 @@ namespace Durability {
 		
 		public override void ModifyTooltips( Item item, List<TooltipLine> tooltips ) {
 			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
 			int max_loss = item_info.CalculateDurabilityLoss( mymod );
-			if( max_loss == 0 ) {
-				return;
-			}
+			if( max_loss == 0 ) { return; }
 
 			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: "+max_loss );
 			tip.overrideColor = Color.Red;
@@ -111,6 +112,9 @@ namespace Durability {
 		private DurabilityItemInfo CurrentReforgeDurability = null;
 
 		public override void PreReforge( Item item ) {
+			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
 			if( item_info.HasDurability( item ) ) {
 				this.CurrentReforgeDurability = item_info;
@@ -119,6 +123,8 @@ namespace Durability {
 
 		public override void PostReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
+			if( !mymod.Config.Data.Enabled ) { return; }
+
 			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 			if( this.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
