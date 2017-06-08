@@ -1,14 +1,19 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HamstarHelpers.ItemHelpers;
+using Microsoft.Xna.Framework;
 using System;
 using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Utils;
+using Terraria.ModLoader.IO;
 
 
 namespace Durability {
-	public class DurabilityItemInfo : ItemInfo {
+	public class DurabilityItemInfo : GlobalItem {
+		public override bool InstancePerEntity { get { return true; } }
+		//public override bool CloneNewInstances { get { return true; } }
+
+		
 		private static int MaxConcurrentUses = 5;
 		
 		public double WearAndTear { get; private set; }
@@ -21,16 +26,18 @@ namespace Durability {
 
 		private bool IsInitialized = false;
 		
+
+
 		////////////////
 
 		public static int CalculateFullDurability( DurabilityMod mymod, Item item ) {
-			ConfigurationData data = mymod.Config.Data;
+			var data = mymod.Config.Data;
 			double val = item.value;
 			double mul = data.DurabilityMultiplier;
 			double add = data.DurabilityAdditive;
-			double hits_per_sec = 60d / (double)ItemHelper.CalculateStandardUseTime( item );
-			bool is_armor = ItemHelper.IsArmor( item );
-			bool is_tool = ItemHelper.IsTool( item );
+			double hits_per_sec = 60d / (double)ItemHelpers.CalculateStandardUseTime( item );
+			bool is_armor = ItemIdentityHelpers.IsArmor( item );
+			bool is_tool = ItemIdentityHelpers.IsTool( item );
 
 			if( is_armor && !is_tool ) { hits_per_sec = 1d; }
 
@@ -58,8 +65,8 @@ namespace Durability {
 				durability *= data.NonToolOrArmorMaxDurabilityMultiplier;
 			}
 
-			if( data.CustomDurabilityMultipliers.Keys.Contains(item.name) ) {
-				durability *= data.CustomDurabilityMultipliers[item.name];
+			if( data.CustomDurabilityMultipliers.Keys.Contains(item.Name) ) {
+				durability *= data.CustomDurabilityMultipliers[item.Name];
 			}
 
 			return (int)durability;
@@ -68,19 +75,27 @@ namespace Durability {
 		public int CalculateDurabilityLoss( DurabilityMod mymod ) {
 			return (int)((float)this.Repairs * mymod.Config.Data.MaxDurabilityLostPerRepair);
 		}
-
-
-		////////////////
+		
 
 		public bool HasDurability( Item item ) {
-			bool is_handy = ItemHelper.IsTool( item ) || ItemHelper.IsArmor( item ) || ItemHelper.IsGrapple( item );
+			bool is_handy = ItemIdentityHelpers.IsTool(item) || ItemIdentityHelpers.IsArmor(item) || ItemIdentityHelpers.IsGrapple(item);
 			return is_handy && !this.IsUnbreakable && !item.consumable;
 		}
 
+
+
 		////////////////
 
-		public override ItemInfo Clone() {
-			var clone = (DurabilityItemInfo)base.Clone();
+		public void Initialize( Item item, double wear, int repairs ) {
+			this.WearAndTear = wear;
+			this.Repairs = repairs;
+
+			this.IsInitialized = true;
+		}
+
+
+		public override GlobalItem Clone( Item item, Item item_clone ) {
+			var clone = (DurabilityItemInfo)base.Clone( item, item_clone );
 			clone.WearAndTear = this.WearAndTear;
 			clone.Repairs = this.Repairs;
 			clone.IsUnbreakable = this.IsUnbreakable;
@@ -89,18 +104,6 @@ namespace Durability {
 
 			return clone;
 		}
-
-		public void Initialize( Item item, double wear, int repairs ) {
-			if( this.IsInitialized ) {
-				ErrorLogger.Log( "Item already initialized: "+item.name );
-			} else {
-				this.WearAndTear = wear;
-				this.Repairs = repairs;
-
-				this.IsInitialized = true;
-			}
-		}
-
 		public void CopyToMe( DurabilityItemInfo info ) {
 			this.WearAndTear = info.WearAndTear;
 			this.IsUnbreakable = info.IsUnbreakable;
@@ -112,23 +115,47 @@ namespace Durability {
 
 		////////////////
 
-		public void NetReceive( Item item, BinaryReader reader ) {
+		public override bool NeedsSaving( Item item ) {
+			return this.HasDurability( item ) ? true : base.NeedsSaving( item );
+		}
+
+		public override void LoadLegacy( Item item, BinaryReader reader ) {
+			this.Initialize( item, (int)reader.ReadInt32(), 0 );
+		}
+
+		public override void Load( Item item, TagCompound tag ) {
+			double wear = tag.GetDouble( "wear_and_tear_d" );
+			int repairs = tag.GetInt( "repairs" );
+			this.Initialize( item, wear, repairs );
+		}
+
+		public override TagCompound Save( Item item ) {
+			return new TagCompound {
+				{"wear_and_tear_d", (double)this.WearAndTear},
+				{"repairs", (int)this.Repairs }
+			};
+		}
+
+		////////////////
+
+		public override void NetReceive( Item item, BinaryReader reader ) {
 			this.WearAndTear = reader.ReadDouble();
 			this.IsUnbreakable = reader.ReadBoolean();
 			this.Repairs = reader.ReadInt32();
 			this.IsCritical = reader.ReadBoolean();
-
-			this.IsInitialized = true;
+			this.IsInitialized = reader.ReadBoolean();
 		}
 
-		public void NetSend( Item item, BinaryWriter writer ) {
+		public override void NetSend( Item item, BinaryWriter writer ) {
 			writer.Write( this.WearAndTear );
 			writer.Write( this.IsUnbreakable );
 			writer.Write( this.Repairs );
 			writer.Write( this.IsCritical );
+			writer.Write( this.IsInitialized );
 		}
 		
 		////////////////
+
 
 		public void AddWearAndTear( DurabilityMod mymod, Item item, int hits = 1, double multiplier = 1d ) {
 			if( !this.HasDurability( item ) || this.ConcurrentUses >= DurabilityItemInfo.MaxConcurrentUses ) { return; }
@@ -138,7 +165,7 @@ namespace Durability {
 			// Propagate effect to mouse item, if applicable
 			if( Main.netMode != 2 && item.owner == Main.myPlayer ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir && !Main.mouseItem.IsNotTheSameAs( item ) ) {
-					DurabilityItemInfo mouse_item_info = Main.mouseItem.GetModInfo<DurabilityItemInfo>( mymod );
+					var mouse_item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( mymod );
 					mouse_item_info.AddWearAndTearForMe( mymod, Main.mouseItem, hits, multiplier );
 				}
 			}
@@ -202,7 +229,7 @@ namespace Durability {
 
 					var player = Main.player[Main.myPlayer];
 
-					int ct = CombatText.NewText( player.getRect(), Color.Yellow, item.name + " damaged!" );
+					int ct = CombatText.NewText( player.getRect(), Color.Yellow, item.Name + " damaged!" );
 					Main.combatText[ct].lifeTime = 100;
 					Main.PlaySound( SoundID.NPCHit18, player.position );
 				}
@@ -215,7 +242,7 @@ namespace Durability {
 
 
 		public void KillMe( Item item ) {
-			string item_name = item.name;
+			string item_name = item.Name;
 			Player player = Main.player[item.owner];
 			player.AddBuff(23, 1);
 			player.noItems = true;
@@ -229,7 +256,7 @@ namespace Durability {
 			item.netID = 0;
 			item.type = 0;
 			item.stack = 0;
-			item.name = "";
+			//item.name = "";
 			item.useStyle = 0;
 			item.useTime = 0;
 			item.useAnimation = 0;

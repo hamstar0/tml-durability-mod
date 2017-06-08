@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Libraries.JSON.NET.Newtonsoft.Json">
-      <HintPath>..\..\..\Reference\Libraries.JSON.NET.Newtonsoft.Json.dll</HintPath>
+    <Reference Include="HamstarHelpers">
+      <HintPath>..\HamstarHelpers\bin\Release\HamstarHelpers.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,26 +44,21 @@
     <Reference Include="Microsoft.Xna.Framework" />
     <Reference Include="Microsoft.Xna.Framework.Game" />
     <Reference Include="Microsoft.Xna.Framework.Graphics" />
-    <Reference Include="Terraria">
-      <HintPath>..\..\..\..\..\Program Files\Steam\steamapps\common\Terraria\Terraria.exe</HintPath>
+    <Reference Include="Terraria, Version=1.3.4.4, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files\Steam\steamapps\common\Terraria\Terraria.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DurabilityGlobalNPC.cs" />
-    <Compile Include="DurabilityGlobalProjectile.cs" />
+    <Compile Include="DurabilityNPC.cs" />
+    <Compile Include="DurabilityProjectile.cs" />
     <Compile Include="DurabilityMod.cs" />
     <Compile Include="DurabilityItemInfo.cs" />
-    <Compile Include="DurabilityGlobalItem.cs" />
+    <Compile Include="DurabilityItem.cs" />
     <Compile Include="DurabilityPlayer.cs" />
     <Compile Include="DurabilityNetProtocol.cs" />
     <Compile Include="Items\SmithingHammerItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ItemHelper.cs" />
-    <Compile Include="Utils\NPCHelper.cs" />
-    <Compile Include="Utils\PlayerHelper.cs" />
-    <Compile Include="Utils\UI.cs" />
-    <Compile Include="Utils\DebugHelper.cs" />
-    <Compile Include="Utils\JsonConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.txt" />

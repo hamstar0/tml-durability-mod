@@ -1,13 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Terraria.GameContent.Achievements;
+﻿using Terraria.GameContent.Achievements;
 using Terraria.ModLoader;
 using Terraria;
-using Utils;
-using Utils.JsonConfig;
 using System;
 using System.IO;
 using System.Collections.Generic;
-
+using HamstarHelpers.Utilities.Config;
 
 namespace Durability {
 	// Clarification of terms:
@@ -275,7 +272,7 @@ namespace Durability {
 
 
 	public class DurabilityMod : Mod {
-		public readonly static Version ConfigVersion = new Version( 2, 3, 1 );
+		public readonly static Version ConfigVersion = new Version( 2, 3, 2 );
 		public JsonConfig<ConfigurationData> Config { get; private set; }
 
 
@@ -357,21 +354,11 @@ namespace Durability {
 
 				if( item != null && !item.IsAir ) {
 					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
-						DurabilityItemInfo item_info = item.GetModInfo<DurabilityItemInfo>( this );
+						DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this );
 						item_info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
 					}
 				}
 			}
-		}
-
-		////////////////
-
-		public override void PostDrawInterface( SpriteBatch sb ) {
-			if( !this.Config.Data.Enabled ) { return; }
-
-			DebugHelper.PrintToBatch( sb );
-			DebugHelper.Once = false;
-			DebugHelper.OnceInAWhile--;
 		}
 	}
 }

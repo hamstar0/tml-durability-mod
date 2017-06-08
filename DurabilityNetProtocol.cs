@@ -5,8 +5,8 @@ using Terraria.ModLoader;
 
 namespace Durability {
 	public enum DurabilityNetProtocolTypes : byte {
-		SendSettingsRequest,
-		SendSettings
+		ModSettingsRequest,
+		ModSettings
 	}
 
 
@@ -15,10 +15,10 @@ namespace Durability {
 			DurabilityNetProtocolTypes protocol = (DurabilityNetProtocolTypes)reader.ReadByte();
 
 			switch( protocol ) {
-			case DurabilityNetProtocolTypes.SendSettingsRequest:
+			case DurabilityNetProtocolTypes.ModSettingsRequest:
 				DurabilityNetProtocol.ReceiveSettingsRequestOnServer( mymod, reader );
 				break;
-			case DurabilityNetProtocolTypes.SendSettings:
+			case DurabilityNetProtocolTypes.ModSettings:
 				DurabilityNetProtocol.ReceiveSettingsOnClient( mymod, reader );
 				break;
 			default:
@@ -38,7 +38,7 @@ namespace Durability {
 			if( Main.netMode != 1 ) { return; }
 
 			ModPacket packet = mymod.GetPacket();
-			packet.Write( (byte)DurabilityNetProtocolTypes.SendSettingsRequest );
+			packet.Write( (byte)DurabilityNetProtocolTypes.ModSettingsRequest );
 			packet.Write( (int)player.whoAmI );
 			packet.Send();
 		}
@@ -52,7 +52,7 @@ namespace Durability {
 			if( Main.netMode != 2 ) { return; }
 
 			ModPacket packet = mymod.GetPacket();
-			packet.Write( (byte)DurabilityNetProtocolTypes.SendSettings );
+			packet.Write( (byte)DurabilityNetProtocolTypes.ModSettings );
 			packet.Write( (string)mymod.Config.SerializeMe() );
 
 			packet.Send( (int)player.whoAmI );

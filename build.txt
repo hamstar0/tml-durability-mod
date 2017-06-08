@@ -1,6 +1,7 @@
 author = hamstar
-version = 2.3.1
+version = 2.3.2
 displayName = Durability
-buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*
-includePDB = false
+modReferences = HamstarHelpers
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*
+includePDB = true
 homepage = http://forums.terraria.org/index.php?threads/durability.52036/

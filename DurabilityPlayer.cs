@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HamstarHelpers.ItemHelpers;
+using HamstarHelpers.PlayerHelpers;
+using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Utils;
 
 
 namespace Durability {
@@ -50,7 +51,7 @@ namespace Durability {
 				if( craft_item == null || craft_item.IsAir ) { continue; }	// Wtf #3
 
 				try {
-					var item_info = craft_item.GetModInfo<DurabilityItemInfo>( this.mod );
+					var item_info = craft_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 					if( item_info == null ) { continue; }
 
 					item_info.IsUnbreakable = true;
@@ -80,19 +81,19 @@ namespace Durability {
 
 
 			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetModInfo<DurabilityItemInfo>( mymod );
+				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				head_item_info.AddWearAndTear( mymod, head_item, dmg );
 				head_item_info.UpdateCriticalState( (DurabilityMod)this.mod, head_item );
 			}
 
 			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetModInfo<DurabilityItemInfo>( mymod );
+				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				body_item_info.AddWearAndTear( mymod, body_item, dmg );
 				body_item_info.UpdateCriticalState( (DurabilityMod)this.mod, body_item );
 			}
 
 			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetModInfo<DurabilityItemInfo>( mymod );
+				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				legs_item_info.AddWearAndTear( mymod, legs_item, dmg );
 				legs_item_info.UpdateCriticalState( (DurabilityMod)this.mod, legs_item );
 			}
@@ -109,7 +110,7 @@ namespace Durability {
 						&& proj.type != ProjectileID.ShadowFlameKnife ) {
 					if( item.shoot == proj.type ) {
 						var mymod = (DurabilityMod)this.mod;
-						var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
+						var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 						
 						item_info.AddWearAndTear( mymod, item, 1, mymod.Config.Data.WeaponWearAndTearMultiplier );
 					}
@@ -136,7 +137,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
@@ -145,7 +146,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetModInfo<DurabilityItemInfo>(this.mod);
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
@@ -154,7 +155,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
 
-			var item_info = fishing_rod.GetModInfo<DurabilityItemInfo>( mymod );
+			var item_info = fishing_rod.GetGlobalItem<DurabilityItemInfo>( mymod );
 
 			item_info.AddWearAndTear( mymod, fishing_rod, 1, mymod.Config.Data.FishingWearAndTearMultiplier );
 		}
@@ -164,7 +165,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return base.Shoot(item, ref position, ref speedX, ref speedY, ref type, ref damage, ref knockBack); }
 			if( item == null || item.IsAir ) { return false; }
 
-			var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 			if( !item_info.HasDurability( item ) ) { return true; }
 
 			ConfigurationData data = mymod.Config.Data;
@@ -183,7 +184,7 @@ namespace Durability {
 			Item item = player.inventory[player.selectedItem];
 
 			if( !item.IsAir && !player.noItems ) {
-				var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+				var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 
 				if( item_info.HasDurability(item) ) {
 					bool is_harpoon = item.type == 160;
@@ -204,7 +205,7 @@ namespace Durability {
 
 						item_info.AddWearAndTear( (DurabilityMod)this.mod, item, 1, scale );
 						if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-							var mouse_item_info = Main.mouseItem.GetModInfo<DurabilityItemInfo>( this.mod );
+							var mouse_item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
 							mouse_item_info.AddWearAndTear( (DurabilityMod)this.mod, Main.mouseItem, 1, scale );
 						}
 					}
@@ -219,7 +220,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 
 			Item item = this.player.inventory[this.player.selectedItem];
-			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 			int max = DurabilityItemInfo.CalculateFullDurability( (DurabilityMod)this.mod, item );
 
 			if( item_info.WearAndTear >= max ) {
@@ -241,24 +242,24 @@ namespace Durability {
 			if( curr_item != null && !curr_item.IsAir ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { curr_item = Main.mouseItem; }
 
-				var item_info = curr_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				var item_info = curr_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				item_info.ConcurrentUses = 0;
 
 				item_info.UpdateCriticalState( (DurabilityMod)this.mod, curr_item );
 			}
 
 			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				head_item_info.ConcurrentUses = 0;
 			}
 
 			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				body_item_info.ConcurrentUses = 0;
 			}
 
 			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetModInfo<DurabilityItemInfo>( this.mod );
+				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				legs_item_info.ConcurrentUses = 0;
 			}
 
@@ -274,13 +275,13 @@ namespace Durability {
 			// Note: Due to a (tML?) bug, this method of copying is necessary
 			if( this.ForceCopy != null ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-					var item_info = Main.mouseItem.GetModInfo<DurabilityItemInfo>( this.mod );
+					var item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
 					item_info.CopyToMe( this.ForceCopy );
 				}
 				this.ForceCopy = null;
 			}
 
-			long money = PlayerHelper.CountMoney( this.player );
+			long money = PlayerItemHelpers.CountMoney( this.player );
 			long spent = this.LastMoney - money;
 
 			if( this.player.talkNPC != -1 ) {
@@ -328,8 +329,8 @@ namespace Durability {
 			Item[] curr_inv = (Item[])this.player.inventory.Clone();
 			curr_inv = curr_inv.Concat<Item>( new Item[] { Main.mouseItem.Clone() } ).ToArray();
 
-			var shop_changes = ItemHelper.FindChanges( this.PrevShop, curr_shop );
-			var inv_changes = ItemHelper.FindChanges( this.PrevInventory, curr_inv );
+			var shop_changes = ItemFinderHelpers.FindChanges( this.PrevShop, curr_shop );
+			var inv_changes = ItemFinderHelpers.FindChanges( this.PrevInventory, curr_inv );
 
 			if( shop_changes.Count != 1 || inv_changes.Count != 1 ) { return; }
 
@@ -347,8 +348,8 @@ namespace Durability {
 				curr_item = curr_inv[kv.Key];
 			}
 
-			var prev_info = prev_item.GetModInfo<DurabilityItemInfo>( this.mod );
-			var curr_info = curr_item.GetModInfo<DurabilityItemInfo>( this.mod );
+			var prev_info = prev_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var curr_info = curr_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 			
 			this.ForceCopy = prev_info;
 		}

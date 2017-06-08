@@ -1,17 +1,23 @@
+using HamstarHelpers.ItemHelpers;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Utils;
+
 
 namespace Durability.Items {
 	public class SmithingHammerItem : ModItem {
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault( "Smithing Hammer" );
+			Tooltip.SetDefault( "Specialized hammer for repairing armor at an anvil." );
+		}
+
 		public override void SetDefaults() {
-			this.item.name = "Smithing Hammer";
+			//this.item.name = "Smithing Hammer";
 			this.item.damage = 7;
 			this.item.melee = true;
 			this.item.width = 40;
 			this.item.height = 40;
-			this.item.toolTip = "Specialized hammer for repairing armor at an anvil.";
+			//this.item.toolTip = "Specialized hammer for repairing armor at an anvil.";
 			this.item.useTime = 15;
 			this.item.useAnimation = 15;
 			this.item.hammer = 40;
@@ -24,11 +30,11 @@ namespace Durability.Items {
 		}
 
 		public override void AddRecipes() {
-			for( int i = 1; i < Main.itemName.Length; i++ ) {   // Main.itemTexture?
+			for( int i = 1; i < Main.itemTexture.Length; i++ ) {   // Main.itemTexture?
 				Item item = new Item();
 				item.SetDefaults( i );
 
-				if( !ItemHelper.IsArmor(item) ) { continue; }
+				if( !ItemIdentityHelpers.IsArmor(item) ) { continue; }
 
 				var recipe = new SmithedArmorRecipe( (DurabilityMod)this.mod, item );
 				recipe.AddRecipe();
@@ -64,8 +70,9 @@ namespace Durability.Items {
 		public override int ConsumeItem( int item_type, int quantity ) {
 			var mymod = (DurabilityMod)this.mod;
 			Player player = Main.player[ Main.myPlayer ];
-			Item item = ItemHelper.FindFirstPlayerItemOfType( player, item_type );
-			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, item_type );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+			//var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 			if( this.mod.ItemType("SmithingHammerItem") == item_type ) {
 				int max_wear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
@@ -88,10 +95,10 @@ namespace Durability.Items {
 
 			if( can_repair && Main.netMode != 2 ) {
 				Player player = Main.player[Main.myPlayer];
-				Item item = ItemHelper.FindFirstPlayerItemOfType( player, this.ItemType );
+				Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, this.ItemType );
 
 				if( item != null && !item.IsAir ) {
-					var item_info = item.GetModInfo<DurabilityItemInfo>( mymod );
+					var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 					can_repair = item_info.CanRepair( mymod, item );
 				}
 			}
@@ -100,16 +107,16 @@ namespace Durability.Items {
 
 		public override void OnCraft( Item item ) {
 			if( this.PrevInfo == null ) {
-				ErrorLogger.Log( "Could not find previous WearAndTear info for " + item.name + " (" + item.type + ")" );
+				ErrorLogger.Log( "Could not find previous WearAndTear info for " + item.Name + " (" + item.type + ")" );
 				return;
 			}
 			if( item.type != this.ItemType ) {
-				ErrorLogger.Log( "Mismatched item type for " + item.name + ": Found " + item.type + ", expected "+this.ItemType );
+				ErrorLogger.Log( "Mismatched item type for " + item.Name + ": Found " + item.type + ", expected "+this.ItemType );
 				return;
 			}
 
 			var mymod = (DurabilityMod)this.mod;
-			var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 			item_info.CopyToMe( this.PrevInfo );
 
 			item_info.RepairMe( mymod, item );
