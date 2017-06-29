@@ -1,6 +1,6 @@
 Adds durability limits to weapons and armor. Formula for computing durability (approx. # of uses):
 - Sell value of = x, Avg hits per second = y:
-    0.71 * ( (y/4 * x^1.54) / (5 + x) ) + 50
+    0.5 * ( (y/4 * x^1.54) / (5 + x) ) + 50
 - Value of valueless items:
     (dmg * y/4 * 1000 + def * 1000) * rarity
 - Increases 2x if item is a tool or armor.

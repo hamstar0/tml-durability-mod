@@ -186,7 +186,10 @@ namespace Durability {
 			if( !item.IsAir && !player.noItems ) {
 				var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 
-				if( item_info.HasDurability(item) ) {
+				if( item_info.IsBroken ) {
+					player.noItems = true;
+					player.noBuilding = true;
+				} else if( item_info.HasDurability(item) ) {
 					bool is_harpoon = item.type == 160;
 					bool is_fishing_pole = item.fishingPole > 0;
 					bool has_ammo = player.HasAmmo( item, true );	// Somehow works with harpoons and magic (?)
@@ -221,10 +224,9 @@ namespace Durability {
 
 			Item item = this.player.inventory[this.player.selectedItem];
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
-			int max = DurabilityItemInfo.CalculateFullDurability( (DurabilityMod)this.mod, item );
 
-			if( item_info.WearAndTear >= max ) {
-				item_info.KillMe( item );
+			if( !item_info.IsBroken && item_info.IsNowBroken(mymod, item) ) {
+				item_info.KillMe( mymod, item );
 			}
 		}
 
@@ -233,8 +235,9 @@ namespace Durability {
 		public override void PreUpdate() {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
+			Player player = this.player;
 
-			Item curr_item = this.player.inventory[this.player.selectedItem];
+			Item curr_item = player.inventory[player.selectedItem];
 			Item head_item = player.armor[0];
 			Item body_item = player.armor[1];
 			Item legs_item = player.armor[2];
@@ -242,25 +245,56 @@ namespace Durability {
 			if( curr_item != null && !curr_item.IsAir ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { curr_item = Main.mouseItem; }
 
-				var item_info = curr_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+				var item_info = curr_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				item_info.ConcurrentUses = 0;
-
-				item_info.UpdateCriticalState( (DurabilityMod)this.mod, curr_item );
+				if( !item_info.IsBroken ) {
+					item_info.UpdateCriticalState( mymod, curr_item );
+				}
 			}
 
 			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				head_item_info.ConcurrentUses = 0;
+
+				if( head_item_info.IsBroken ) {
+					int who = ItemHelpers.CreateItem( player.position, head_item.type, 1, head_item.width, head_item.height, head_item.prefix );
+					ItemHelpers.DestroyItem( head_item );
+
+					var new_item = Main.item[who];
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
+					new_item_info.KillMe( mymod, new_item );
+					player.armor[0] = new Item();
+				}
 			}
 
 			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				body_item_info.ConcurrentUses = 0;
+
+				if( body_item_info.IsBroken ) {
+					int who = ItemHelpers.CreateItem( player.position, body_item.type, 1, body_item.width, body_item.height, body_item.prefix );
+					ItemHelpers.DestroyItem( body_item );
+
+					var new_item = Main.item[who];
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
+					new_item_info.KillMe( mymod, new_item );
+					player.armor[1] = new Item();
+				}
 			}
 
 			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				legs_item_info.ConcurrentUses = 0;
+
+				if( legs_item_info.IsBroken ) {
+					int who = ItemHelpers.CreateItem( player.position, legs_item.type, 1, legs_item.width, legs_item.height, legs_item.prefix );
+					ItemHelpers.DestroyItem( legs_item );
+
+					var new_item = Main.item[who];
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
+					new_item_info.KillMe( mymod, new_item );
+					player.armor[2] = new Item();
+				}
 			}
 
 			this.CheckPurchaseChanges();
@@ -272,7 +306,7 @@ namespace Durability {
 			if( Main.netMode == 2 ) { return; }	// Not server
 			if( this.player.whoAmI != Main.myPlayer ) { return; }	// Current player
 
-			// Note: Due to a (tML?) bug, this method of copying is necessary
+			// Note: Due to a (tML?) bug, this method of copying seems necessary?
 			if( this.ForceCopy != null ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
 					var item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );

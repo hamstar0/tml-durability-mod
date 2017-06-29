@@ -16,36 +16,45 @@ namespace Durability {
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 			if( !item_info.HasDurability( item ) ) { return; }
+			
+			if( !item_info.IsBroken ) {
+				int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
+				int hp = max - (int)item_info.WearAndTear;
 
-			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
-			int hp = max - (int)item_info.WearAndTear;
-			float alpha = 0.6f + (0.05f * item_info.RecentUseDisplayBarAnimate);
-			Color color = HealthBarHelpers.GetHealthBarColor( hp, max, alpha );
-			float pos_x = position.X + (((float)frame.Width / 2f) * scale);
-			float pos_y = position.Y + (((float)frame.Height / 2f) * scale);
+				float alpha = 0.6f + (0.05f * item_info.RecentUseDisplayBarAnimate);
+				Color color = HealthBarHelpers.GetHealthBarColor( hp, max, alpha );
+				float pos_x = position.X + (((float)frame.Width / 2f) * scale);
+				float pos_y = position.Y + (((float)frame.Height / 2f) * scale);
 
-			if( item_info.RecentUseDisplayBarAnimate > 0 ) {
-				item_info.RecentUseDisplayBarAnimate--;
-			}
-
-			if( mymod.Config.Data.ShowBar ) {
-				HealthBarHelpers.DrawHealthBar( sb, pos_x + 1f, pos_y + 5f, max - (int)item_info.WearAndTear, max, color, 0.8f );
-			}
-
-			if( mymod.Config.Data.ShowNumbers ) {
-				var player = Main.player[ Main.myPlayer ];
-				Item hover_item = Main.HoverItem;
-				Item selected = player.inventory[ player.selectedItem ];
-				Item mouse = Main.mouseItem;
-
-				if( (hover_item != null && !hover_item.IsAir && !hover_item.IsNotTheSameAs(item))
-						|| (selected != null && !selected.IsAir && !selected.IsNotTheSameAs(item))
-						|| (mouse != null && !mouse.IsAir && !mouse.IsNotTheSameAs(item)) ) {
-					Color t_color = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
-					HealthBarHelpers.DrawHealthText( sb, pos_x, pos_y, hp, t_color );
+				if( item_info.RecentUseDisplayBarAnimate > 0 ) {
+					item_info.RecentUseDisplayBarAnimate--;
 				}
+
+				if( mymod.Config.Data.ShowBar ) {
+					HealthBarHelpers.DrawHealthBar( sb, pos_x + 1f, pos_y + 5f, max - (int)item_info.WearAndTear, max, color, 0.8f );
+				}
+
+				if( mymod.Config.Data.ShowNumbers ) {
+					var player = Main.player[ Main.myPlayer ];
+					Item hover_item = Main.HoverItem;
+					Item selected = player.inventory[ player.selectedItem ];
+					Item mouse = Main.mouseItem;
+
+					if( (hover_item != null && !hover_item.IsAir && !hover_item.IsNotTheSameAs(item))
+							|| (selected != null && !selected.IsAir && !selected.IsNotTheSameAs(item))
+							|| (mouse != null && !mouse.IsAir && !mouse.IsNotTheSameAs(item)) ) {
+						Color t_color = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
+						HealthBarHelpers.DrawHealthText( sb, pos_x, pos_y, hp, t_color );
+					}
+				}
+			} else {
+				float pos_x = position.X + (((float)frame.Width / 2f) * scale) - (((float)mymod.DestroyedTex.Width / 2f) * scale);
+				float pos_y = position.Y + (((float)frame.Height / 2f) * scale) - (((float)mymod.DestroyedTex.Height / 2f) * scale);
+
+				sb.Draw( mymod.DestroyedTex, new Vector2(pos_x, pos_y), Color.White );
 			}
 		}
+
 		
 		public override void ModifyTooltips( Item item, List<TooltipLine> tooltips ) {
 			var mymod = (DurabilityMod)this.mod;

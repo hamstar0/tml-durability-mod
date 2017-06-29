@@ -15,7 +15,8 @@ namespace Durability {
 
 		
 		private static int MaxConcurrentUses = 5;
-		
+
+		public bool IsBroken { get; private set; }
 		public double WearAndTear { get; private set; }
 		public bool IsUnbreakable = false;
 		public int Repairs = 0;
@@ -56,13 +57,13 @@ namespace Durability {
 			double durability = mul * ( ((hits_per_sec / 4d) * pow) / (5d + val) ) + add;
 			
 			if( is_armor ) {
-				durability *= data.ArmorMaxDurabilityMultiplier;
+				durability *= data.ArmorDurabilityMultiplier;
 			}
 			if( is_tool ) {
-				durability *= data.ToolMaxDurabilityMultiplier;
+				durability *= data.ToolDurabilityMultiplier;
 			}
 			if( !is_tool && !is_armor ) {
-				durability *= data.NonToolOrArmorMaxDurabilityMultiplier;
+				durability *= data.NonToolOrArmorDurabilityMultiplier;
 			}
 
 			if( data.CustomDurabilityMultipliers.Keys.Contains(item.Name) ) {
@@ -86,9 +87,10 @@ namespace Durability {
 
 		////////////////
 
-		public void Initialize( Item item, double wear, int repairs ) {
+		public void Initialize( DurabilityMod mymod, Item item, double wear, int repairs ) {
 			this.WearAndTear = wear;
 			this.Repairs = repairs;
+			this.IsBroken = wear >= DurabilityItemInfo.CalculateFullDurability( mymod, item );
 
 			this.IsInitialized = true;
 		}
@@ -100,6 +102,7 @@ namespace Durability {
 			clone.Repairs = this.Repairs;
 			clone.IsUnbreakable = this.IsUnbreakable;
 			clone.IsCritical = this.IsCritical;
+			clone.IsBroken = this.IsBroken;
 			clone.IsInitialized = this.IsInitialized;
 
 			return clone;
@@ -109,6 +112,7 @@ namespace Durability {
 			this.IsUnbreakable = info.IsUnbreakable;
 			this.Repairs = info.Repairs;
 			this.IsCritical = info.IsCritical;
+			this.IsBroken = info.IsBroken;
 
 			this.IsInitialized = true;
 		}
@@ -120,13 +124,13 @@ namespace Durability {
 		}
 
 		public override void LoadLegacy( Item item, BinaryReader reader ) {
-			this.Initialize( item, (int)reader.ReadInt32(), 0 );
+			this.Initialize( (DurabilityMod)this.mod, item, (int)reader.ReadInt32(), 0 );
 		}
 
 		public override void Load( Item item, TagCompound tag ) {
 			double wear = tag.GetDouble( "wear_and_tear_d" );
 			int repairs = tag.GetInt( "repairs" );
-			this.Initialize( item, wear, repairs );
+			this.Initialize( (DurabilityMod)this.mod, item, wear, repairs );
 		}
 
 		public override TagCompound Save( Item item ) {
@@ -172,49 +176,50 @@ namespace Durability {
 		}
 
 		private void AddWearAndTearForMe( DurabilityMod mymod, Item item, int hits, double multiplier ) {
-			ConfigurationData data = mymod.Config.Data;
-			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
-
-			this.WearAndTear += (double)hits * (double)data.GeneralWearAndTearMultiplier * multiplier;
+			this.WearAndTear += (double)hits * (double)mymod.Config.Data.GeneralWearAndTearMultiplier * multiplier;
 			this.ConcurrentUses++;
 			this.RecentUseDisplayBarAnimate = 8;
 			
-			if( this.WearAndTear >= max ) {
-				this.WearAndTear = max;
-				this.KillMe( item );
+			if( !this.IsBroken && this.IsNowBroken(mymod, item) ) {
+				this.KillMe( mymod, item );
 			}
 		}
 
 
 		public bool RemoveWearAndTear( DurabilityMod mymod, Item item, int amount ) {
-			ConfigurationData data = mymod.Config.Data;
 			double wear = this.WearAndTear - amount;
-			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 			
 			this.WearAndTear = Math.Max( wear, this.CalculateDurabilityLoss( mymod ) );
 
-			bool is_broken = this.WearAndTear >= max;
-			if( is_broken ) {
-				this.WearAndTear = max;
-				this.KillMe( item );
+			bool is_broken = this.IsNowBroken( mymod, item );
+			if( !this.IsBroken && is_broken ) {
+				this.KillMe( mymod, item );
 			}
 			return !is_broken;
 		}
 
 		////////////////
+		
+		public bool IsNowBroken( DurabilityMod mymod, Item item ) {
+			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
+			return this.WearAndTear >= max;
+		}
 
 
 		public bool CanRepair( DurabilityMod mymod, Item item ) {
 			ConfigurationData data = mymod.Config.Data;
-			
-			return data.CanRepair && this.WearAndTear > this.CalculateDurabilityLoss( mymod );
+			bool can_repair_broken = !this.IsBroken || (data.CanRepairBroken && this.IsBroken);
+
+			return data.CanRepair && can_repair_broken && this.WearAndTear > this.CalculateDurabilityLoss( mymod );
 		}
 
 
 		public void RepairMe( DurabilityMod mymod, Item item ) {
 			this.Repairs++;
+
 			if( this.RemoveWearAndTear( mymod, item, mymod.Config.Data.RepairAmount ) ) {
 				Main.PlaySound( SoundID.Item37, item.position );
+				this.IsBroken = false;
 			}
 		}
 
@@ -241,25 +246,26 @@ namespace Durability {
 		}
 
 
-		public void KillMe( Item item ) {
+		public void KillMe( DurabilityMod mymod, Item item ) {
+			this.IsBroken = true;
+			this.WearAndTear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
+
 			string item_name = item.Name;
-			Player player = Main.player[item.owner];
-			player.AddBuff(23, 1);
+			Player player = Main.player[ item.owner ];
+			player.AddBuff( 23, 1 );
 			player.noItems = true;
 
-			//int soundSlot = mod.GetSoundSlot(SoundType.Item, "Sounds/Item/ItemBreak");
-			//Main.PlaySound( 2, player.position, soundSlot );
 			Main.PlaySound( 13, player.position );
 			Main.PlaySound( 3, player.position, 18 );
 
-			item.SetDefaults( 0, false );
+			/*item.SetDefaults( 0, false );
 			item.netID = 0;
 			item.type = 0;
 			item.stack = 0;
 			//item.name = "";
 			item.useStyle = 0;
 			item.useTime = 0;
-			item.useAnimation = 0;
+			item.useAnimation = 0;*/
 			
 			int ct = CombatText.NewText( player.getRect(), Color.DarkGray, item_name + " has broken!", false, true );
 			Main.combatText[ct].lifeTime = 80;

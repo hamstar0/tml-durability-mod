@@ -5,10 +5,17 @@ Future
 -	F&T
 	-	Laser machine gun does not trigger with each fire
 -	Lower sell value of low durability items
+-	Implement 'Work Orders' (fully repairs items; takes 24 hours)
+v2.4
+-	Update Honor Bound
+
 -	Set broken items to be rendered useless; not destroyed
+	-	Set broken items to be unequipable or to auto de-equip
+	-	Display broken items with X overlay
+-	Reduce general durability
+-	Update config file to preserve customized settings
 v2.3.1
 -	Add 'Enabled' config setting
-
 v2.3
 -	Modified fishing durability use (catches only)
 -	Set ore weapons to have higher durability

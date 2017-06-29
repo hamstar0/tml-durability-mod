@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigDefaults.cs" />
     <Compile Include="DurabilityNPC.cs" />
     <Compile Include="DurabilityProjectile.cs" />
     <Compile Include="DurabilityMod.cs" />

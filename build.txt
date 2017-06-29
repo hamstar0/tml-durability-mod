@@ -1,5 +1,5 @@
 author = hamstar
-version = 2.3.2
+version = 2.4.0
 displayName = Durability
 modReferences = HamstarHelpers
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*
