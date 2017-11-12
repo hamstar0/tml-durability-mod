@@ -1,4 +1,5 @@
-﻿using HamstarHelpers.ItemHelpers;
+﻿using Durability.NetProtocol;
+using HamstarHelpers.ItemHelpers;
 using HamstarHelpers.PlayerHelpers;
 using Microsoft.Xna.Framework;
 using System;
@@ -39,7 +40,7 @@ namespace Durability {
 				}
 
 				if( Main.netMode == 1 ) {   // Client
-					DurabilityNetProtocol.RequestSettingsFromServer( mymod, player );
+					ClientPacketHandlers.SendSettingsRequestFromClient( mymod, player );
 				}
 			}
 

@@ -4,6 +4,7 @@ using Terraria;
 using System.IO;
 using HamstarHelpers.Utilities.Config;
 using Microsoft.Xna.Framework.Graphics;
+using Durability.NetProtocol;
 
 
 namespace Durability {
@@ -60,7 +61,7 @@ namespace Durability {
 			var old_config = new JsonConfig<DurabilityConfigData>( "Durability 1.6.0.json", "", new DurabilityConfigData() );
 			if( old_config.LoadFile() ) {
 				old_config.DestroyFile();
-				old_config.SetFilePath( this.Config.FileName, "Mod Configs" );
+				old_config.SetFilePath( this.Config.FileName, ConfigurationDataBase.RelativePath );
 				old_config.Data.VersionSinceUpdate = "1.6.0";
 				old_config.SaveFile();
 			}
@@ -77,15 +78,19 @@ namespace Durability {
 
 
 		public override void Unload() {
-			AchievementsHelper.OnTileDestroyed -= this.MyOnTileDestroyedEvent;
 			DurabilityMod.Instance = null;
+			AchievementsHelper.OnTileDestroyed -= this.MyOnTileDestroyedEvent;
 		}
 		
 		////////////////
 
 
-		public override void HandlePacket( BinaryReader reader, int whoAmI ) {
-			DurabilityNetProtocol.RoutePacket( this, reader );
+		public override void HandlePacket( BinaryReader reader, int who_am_i ) {
+			if( Main.netMode == 1 ) {
+				ClientPacketHandlers.RoutePacket( this, reader );
+			} else if( Main.netMode == 2 ) {
+				ServerPacketHandlers.RoutePacket( this, reader, who_am_i );
+			}
 		}
 
 
