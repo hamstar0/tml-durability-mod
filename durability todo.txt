@@ -6,9 +6,15 @@ Future
 	-	Laser machine gun does not trigger with each fire
 -	Lower sell value of low durability items
 -	Implement 'Work Orders' (fully repairs items; takes 24 hours)
+v2.4.1
+-	Refactor for updated config
+-	Refactor for updated net protocol
+-	Refactor for updated code
+-	Fix durability auto stack glitch
+-	Add 'Broken' prefix to items that break
+
 v2.4
 -	Update Honor Bound
-
 -	Set broken items to be rendered useless; not destroyed
 	-	Set broken items to be unequipable or to auto de-equip
 	-	Display broken items with X overlay

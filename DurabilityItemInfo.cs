@@ -14,6 +14,80 @@ namespace Durability {
 		//public override bool CloneNewInstances { get { return true; } }
 
 		
+		public void Initialize( DurabilityMod mymod, Item item, double wear, int repairs ) {
+			this.WearAndTear = wear;
+			this.Repairs = repairs;
+			this.IsBroken = wear >= DurabilityItemInfo.CalculateFullDurability( mymod, item );
+
+			this.IsInitialized = true;
+		}
+
+		public override GlobalItem Clone( Item item, Item item_clone ) {
+			var clone = (DurabilityItemInfo)base.Clone( item, item_clone );
+			clone.WearAndTear = this.WearAndTear;
+			clone.Repairs = this.Repairs;
+			clone.IsUnbreakable = this.IsUnbreakable;
+			clone.IsCritical = this.IsCritical;
+			clone.IsBroken = this.IsBroken;
+			clone.IsInitialized = this.IsInitialized;
+
+			return clone;
+		}
+		public void CopyToMe( DurabilityItemInfo info ) {
+			this.WearAndTear = info.WearAndTear;
+			this.IsUnbreakable = info.IsUnbreakable;
+			this.Repairs = info.Repairs;
+			this.IsCritical = info.IsCritical;
+			this.IsBroken = info.IsBroken;
+
+			this.IsInitialized = true;
+		}
+
+		////////////////	
+
+		public override bool NeedsSaving( Item item ) {
+			return this.IsHandy(item) && !item.consumable ? true : base.NeedsSaving( item );
+		}
+
+		public override void LoadLegacy( Item item, BinaryReader reader ) {
+			this.Initialize( (DurabilityMod)this.mod, item, (int)reader.ReadInt32(), 0 );
+		}
+
+		public override void Load( Item item, TagCompound tag ) {
+			double wear = tag.GetDouble( "wear_and_tear_d" );
+			int repairs = tag.GetInt( "repairs" );
+			this.Initialize( (DurabilityMod)this.mod, item, wear, repairs );
+		}
+
+		public override TagCompound Save( Item item ) {
+			return new TagCompound {
+				{"wear_and_tear_d", (double)this.WearAndTear},
+				{"repairs", (int)this.Repairs }
+			};
+		}
+
+		////////////////
+
+		public override void NetReceive( Item item, BinaryReader reader ) {
+			this.WearAndTear = reader.ReadDouble();
+			this.IsUnbreakable = reader.ReadBoolean();
+			this.Repairs = reader.ReadInt32();
+			this.IsCritical = reader.ReadBoolean();
+			this.IsInitialized = reader.ReadBoolean();
+		}
+
+		public override void NetSend( Item item, BinaryWriter writer ) {
+			writer.Write( (double)this.WearAndTear );
+			writer.Write( (bool)this.IsUnbreakable );
+			writer.Write( (int)this.Repairs );
+			writer.Write( (bool)this.IsCritical );
+			writer.Write( (bool)this.IsInitialized );
+		}
+
+		////////////////
+
+
+
 		private static int MaxConcurrentUses = 5;
 
 		public bool IsBroken { get; private set; }
@@ -78,86 +152,15 @@ namespace Durability {
 		}
 		
 
+		public bool IsHandy( Item item ) {
+			return ItemIdentityHelpers.IsTool( item ) || ItemIdentityHelpers.IsArmor( item ) || ItemIdentityHelpers.IsGrapple( item );
+		}
 		public bool HasDurability( Item item ) {
-			bool is_handy = ItemIdentityHelpers.IsTool(item) || ItemIdentityHelpers.IsArmor(item) || ItemIdentityHelpers.IsGrapple(item);
-			return is_handy && !this.IsUnbreakable && !item.consumable;
+			return this.IsHandy(item) && !this.IsUnbreakable && !item.consumable;
 		}
 
 
 
-		////////////////
-
-		public void Initialize( DurabilityMod mymod, Item item, double wear, int repairs ) {
-			this.WearAndTear = wear;
-			this.Repairs = repairs;
-			this.IsBroken = wear >= DurabilityItemInfo.CalculateFullDurability( mymod, item );
-
-			this.IsInitialized = true;
-		}
-
-
-		public override GlobalItem Clone( Item item, Item item_clone ) {
-			var clone = (DurabilityItemInfo)base.Clone( item, item_clone );
-			clone.WearAndTear = this.WearAndTear;
-			clone.Repairs = this.Repairs;
-			clone.IsUnbreakable = this.IsUnbreakable;
-			clone.IsCritical = this.IsCritical;
-			clone.IsBroken = this.IsBroken;
-			clone.IsInitialized = this.IsInitialized;
-
-			return clone;
-		}
-		public void CopyToMe( DurabilityItemInfo info ) {
-			this.WearAndTear = info.WearAndTear;
-			this.IsUnbreakable = info.IsUnbreakable;
-			this.Repairs = info.Repairs;
-			this.IsCritical = info.IsCritical;
-			this.IsBroken = info.IsBroken;
-
-			this.IsInitialized = true;
-		}
-
-		////////////////
-
-		public override bool NeedsSaving( Item item ) {
-			return this.HasDurability( item ) ? true : base.NeedsSaving( item );
-		}
-
-		public override void LoadLegacy( Item item, BinaryReader reader ) {
-			this.Initialize( (DurabilityMod)this.mod, item, (int)reader.ReadInt32(), 0 );
-		}
-
-		public override void Load( Item item, TagCompound tag ) {
-			double wear = tag.GetDouble( "wear_and_tear_d" );
-			int repairs = tag.GetInt( "repairs" );
-			this.Initialize( (DurabilityMod)this.mod, item, wear, repairs );
-		}
-
-		public override TagCompound Save( Item item ) {
-			return new TagCompound {
-				{"wear_and_tear_d", (double)this.WearAndTear},
-				{"repairs", (int)this.Repairs }
-			};
-		}
-
-		////////////////
-
-		public override void NetReceive( Item item, BinaryReader reader ) {
-			this.WearAndTear = reader.ReadDouble();
-			this.IsUnbreakable = reader.ReadBoolean();
-			this.Repairs = reader.ReadInt32();
-			this.IsCritical = reader.ReadBoolean();
-			this.IsInitialized = reader.ReadBoolean();
-		}
-
-		public override void NetSend( Item item, BinaryWriter writer ) {
-			writer.Write( this.WearAndTear );
-			writer.Write( this.IsUnbreakable );
-			writer.Write( this.Repairs );
-			writer.Write( this.IsCritical );
-			writer.Write( this.IsInitialized );
-		}
-		
 		////////////////
 
 
@@ -207,7 +210,7 @@ namespace Durability {
 
 
 		public bool CanRepair( DurabilityMod mymod, Item item ) {
-			ConfigurationData data = mymod.Config.Data;
+			DurabilityConfigData data = mymod.Config.Data;
 			bool can_repair_broken = !this.IsBroken || (data.CanRepairBroken && this.IsBroken);
 
 			return data.CanRepair && can_repair_broken && this.WearAndTear > this.CalculateDurabilityLoss( mymod );

@@ -45,10 +45,9 @@ namespace Durability {
 
 			// Because crafting recipe items showing a durability bar is confusing
 			for( int i = 0; i < Main.recipe.Length; i++ ) {
-				if( Main.recipe[i] == null ) { continue; }	// Wtf #2
-
+				if( Main.recipe[i] == null ) { continue; }
 				Item craft_item = Main.recipe[i].createItem;
-				if( craft_item == null || craft_item.IsAir ) { continue; }	// Wtf #3
+				if( craft_item == null || craft_item.IsAir ) { continue; }
 
 				try {
 					var item_info = craft_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
@@ -168,7 +167,7 @@ namespace Durability {
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 			if( !item_info.HasDurability( item ) ) { return true; }
 
-			ConfigurationData data = mymod.Config.Data;
+			DurabilityConfigData data = mymod.Config.Data;
 			if( item.melee && !item.noMelee && !item.noUseGraphic ) { // Any projectile generating melee
 				item_info.AddWearAndTear( mymod, item, 1, mymod.Config.Data.MeleeProjectileWearAndTearMultiplier );
 			}

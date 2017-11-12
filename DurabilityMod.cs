@@ -8,9 +8,28 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Durability {
 	public class DurabilityMod : Mod {
-		public JsonConfig<ConfigurationData> Config { get; private set; }
-		public Texture2D DestroyedTex = null;
+		public static string GithubUserName { get { return "hamstar0"; } }
+		public static string GithubProjectName { get { return "tml-durability-mod"; } }
 
+		public static string ConfigRelativeFilePath {
+			get { return ConfigurationDataBase.RelativePath + Path.DirectorySeparatorChar + DurabilityConfigData.ConfigFileName; }
+		}
+		public static void ReloadConfigFromFile() {
+			if( DurabilityMod.Instance != null && Main.netMode != 1 ) {
+				DurabilityMod.Instance.Config.LoadFile();
+			}
+		}
+
+		public static DurabilityMod Instance { get; private set; }
+
+
+		////////////////
+
+		public JsonConfig<DurabilityConfigData> Config { get; private set; }
+		public Texture2D DestroyedTex { get; private set; }
+
+
+		////////////////
 
 		public DurabilityMod() {
 			this.Properties = new ModProperties() {
@@ -19,14 +38,26 @@ namespace Durability {
 				AutoloadSounds = true
 			};
 
-			string filename = "Durability Config.json";
-			this.Config = new JsonConfig<ConfigurationData>( filename, "Mod Configs", new ConfigurationData() );
+			this.DestroyedTex = null;
+			this.Config = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath, new DurabilityConfigData() );
 		}
 
+		////////////////
 
+		public override void Load() {
+			DurabilityMod.Instance = this;
+
+			if( Main.netMode != 2 ) {   // Not server
+				this.DestroyedTex = ModLoader.GetTexture( "Terraria/MapDeath" );
+			}
+
+			this.LoadConfig();
+			AchievementsHelper.OnTileDestroyed += this.MyOnTileDestroyedEvent;
+		}
+		
 		private void LoadConfig() {
 			// Update old config to new location
-			var old_config = new JsonConfig<ConfigurationData>( "Durability 1.6.0.json", "", new ConfigurationData() );
+			var old_config = new JsonConfig<DurabilityConfigData>( "Durability 1.6.0.json", "", new DurabilityConfigData() );
 			if( old_config.LoadFile() ) {
 				old_config.DestroyFile();
 				old_config.SetFilePath( this.Config.FileName, "Mod Configs" );
@@ -39,32 +70,24 @@ namespace Durability {
 			}
 
 			if( this.Config.Data.UpdateToLatestVersion() ) {
-				ErrorLogger.Log( "Durability updated to " + ConfigurationData.CurrentVersion.ToString() );
+				ErrorLogger.Log( "Durability updated to " + DurabilityConfigData.CurrentVersion.ToString() );
 				this.Config.SaveFile();
 			}
 		}
 
 
-		public override void Load() {
-			if( Main.netMode != 2 ) {   // Not server
-				this.DestroyedTex = ModLoader.GetTexture( "Terraria/MapDeath" );
-			}
-
-			this.LoadConfig();
-			AchievementsHelper.OnTileDestroyed += this.MyOnTileDestroyedEvent;
-		}
-
 		public override void Unload() {
 			AchievementsHelper.OnTileDestroyed -= this.MyOnTileDestroyedEvent;
+			DurabilityMod.Instance = null;
 		}
-
-
-
+		
 		////////////////
+
 
 		public override void HandlePacket( BinaryReader reader, int whoAmI ) {
 			DurabilityNetProtocol.RoutePacket( this, reader );
 		}
+
 
 
 		////////////////

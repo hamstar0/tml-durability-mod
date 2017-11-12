@@ -6,9 +6,11 @@ namespace Durability {
 	// Clarification of terms:
 	//	'wear and tear'		Accumulated damage to tool or armor.
 	//	'durability'		Amount of wear and tear before tool or armor breaks.
-	public class ConfigurationData {
+	public class DurabilityConfigData {
 		public readonly static Version CurrentVersion = new Version( 2, 4, 0 );
+		public readonly static string ConfigFileName = "Durability Config.json";
 
+		////////////////
 
 		public string VersionSinceUpdate = "";
 
@@ -279,29 +281,29 @@ namespace Durability {
 		////////////////
 
 		public bool UpdateToLatestVersion() {
-			var new_config = new ConfigurationData();
+			var new_config = new DurabilityConfigData();
 			var vers_since = this.VersionSinceUpdate != "" ?
 				new Version( this.VersionSinceUpdate ) :
 				new Version();
 
-			if( vers_since >= ConfigurationData.CurrentVersion ) {
+			if( vers_since >= DurabilityConfigData.CurrentVersion ) {
 				return false;
 			}
 
 			if( vers_since < new Version( 2, 2, 0 ) ) {
-				if( ConfigurationData._2_1_0_SummonWearAndTearMultiplier == this.SummonWearAndTearMultiplier ) {
+				if( DurabilityConfigData._2_1_0_SummonWearAndTearMultiplier == this.SummonWearAndTearMultiplier ) {
 					this.SummonWearAndTearMultiplier = new_config.SummonWearAndTearMultiplier;
 				}
-				if( ConfigurationData._2_1_0_DurabilityMultiplier == this.DurabilityMultiplier ) {
+				if( DurabilityConfigData._2_1_0_DurabilityMultiplier == this.DurabilityMultiplier ) {
 					this.DurabilityMultiplier = new_config.DurabilityMultiplier;
 				}
 			}
 
 			if( vers_since < new Version( 2, 3, 0 ) ) {
-				if( ConfigurationData._2_2_0_DurabilityExponent == this.DurabilityExponent ) {
+				if( DurabilityConfigData._2_2_0_DurabilityExponent == this.DurabilityExponent ) {
 					this.DurabilityExponent = new_config.DurabilityExponent;
 				}
-				var old_customs_defaults = ConfigurationData._2_2_0_CustomDurabilityMultipliers;
+				var old_customs_defaults = DurabilityConfigData._2_2_0_CustomDurabilityMultipliers;
 				// Inherit modified custom values
 				foreach( var kv in this.CustomDurabilityMultipliers ) {
 					if( !old_customs_defaults.ContainsKey( kv.Key ) || old_customs_defaults[kv.Key] != kv.Value ) {
@@ -312,12 +314,12 @@ namespace Durability {
 			}
 
 			if( vers_since < new Version( 2, 4, 0 ) ) {
-				if( ConfigurationData._2_3_0_DurabilityMultiplier == this.DurabilityMultiplier ) {
+				if( DurabilityConfigData._2_3_0_DurabilityMultiplier == this.DurabilityMultiplier ) {
 					this.DurabilityMultiplier = new_config.DurabilityMultiplier;
 				}
 			}
 
-			this.VersionSinceUpdate = ConfigurationData.CurrentVersion.ToString();
+			this.VersionSinceUpdate = DurabilityConfigData.CurrentVersion.ToString();
 
 			return true;
 		}
