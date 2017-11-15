@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 
 namespace Durability.Items {
-	public class SmithingHammerItem : ModItem {
+	class SmithingHammerItem : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault( "Smithing Hammer" );
 			Tooltip.SetDefault( "Specialized hammer for repairing armor at an anvil." );
@@ -46,7 +46,7 @@ namespace Durability.Items {
 
 	class SmithedArmorRecipe : ModRecipe {
 		public int ItemType { get; private set; }
-		private DurabilityItemInfo PrevInfo = null;
+		private MyItemInfo PrevInfo = null;
 
 		////////////////
 
@@ -71,17 +71,17 @@ namespace Durability.Items {
 			var mymod = (DurabilityMod)this.mod;
 			Player player = Main.player[ Main.myPlayer ];
 			Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, item_type );
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+			var item_info = item.GetGlobalItem<MyItemInfo>( mymod );
 			//var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
 			if( this.mod.ItemType("SmithingHammerItem") == item_type ) {
-				int max_wear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
+				int max_wear = MyItemInfo.CalculateFullDurability( mymod, item );
 				int wear = (max_wear / 3) + 1;
 
 				item_info.AddWearAndTear( mymod, item, wear, 1 );
 				return 0;
 			} else if( item != null ) {
-				this.PrevInfo = (DurabilityItemInfo)item_info.Clone();
+				this.PrevInfo = (MyItemInfo)item_info.Clone();
 			}
 
 			return quantity;
@@ -98,7 +98,7 @@ namespace Durability.Items {
 				Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, this.ItemType );
 
 				if( item != null && !item.IsAir ) {
-					var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+					var item_info = item.GetGlobalItem<MyItemInfo>( mymod );
 					can_repair = item_info.CanRepair( mymod, item );
 				}
 			}
@@ -116,7 +116,7 @@ namespace Durability.Items {
 			}
 
 			var mymod = (DurabilityMod)this.mod;
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
 			item_info.CopyToMe( this.PrevInfo );
 
 			item_info.RepairMe( mymod, item );

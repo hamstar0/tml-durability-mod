@@ -50,13 +50,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.cs" />
     <Compile Include="ConfigDefaults.cs" />
-    <Compile Include="DurabilityNPC.cs" />
-    <Compile Include="DurabilityProjectile.cs" />
+    <Compile Include="MyNPC.cs" />
+    <Compile Include="MyProjectile.cs" />
     <Compile Include="DurabilityMod.cs" />
-    <Compile Include="DurabilityItemInfo.cs" />
-    <Compile Include="DurabilityItem.cs" />
-    <Compile Include="DurabilityPlayer.cs" />
+    <Compile Include="MyItemInfo.cs" />
+    <Compile Include="MyItem.cs" />
+    <Compile Include="MyPlayer.cs" />
     <Compile Include="NetProtocol\ClientPacketHandlers.cs" />
     <Compile Include="NetProtocol\NetProtocolTypes.cs" />
     <Compile Include="Items\SmithingHammerItem.cs" />

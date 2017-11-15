@@ -10,6 +10,7 @@ namespace Durability {
 		public readonly static Version CurrentVersion = new Version( 2, 4, 0 );
 		public readonly static string ConfigFileName = "Durability Config.json";
 
+
 		////////////////
 
 		public string VersionSinceUpdate = "";

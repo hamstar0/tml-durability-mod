@@ -4,8 +4,8 @@ using Terraria.ModLoader;
 
 
 namespace Durability.NetProtocol {
-	public static class ServerPacketHandlers {
-		public static void RoutePacket( DurabilityMod mymod, BinaryReader reader, int who_am_i ) {
+	static class ServerPacketHandlers {
+		public static void HandlePacket( DurabilityMod mymod, BinaryReader reader, int who_am_i ) {
 			DurabilityNetProtocolTypes protocol = (DurabilityNetProtocolTypes)reader.ReadByte();
 
 			switch( protocol ) {

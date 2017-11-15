@@ -5,10 +5,13 @@ using System.IO;
 using HamstarHelpers.Utilities.Config;
 using Microsoft.Xna.Framework.Graphics;
 using Durability.NetProtocol;
+using System;
 
 
 namespace Durability {
-	public class DurabilityMod : Mod {
+	class DurabilityMod : Mod {
+		public static DurabilityMod Instance { get; private set; }
+
 		public static string GithubUserName { get { return "hamstar0"; } }
 		public static string GithubProjectName { get { return "tml-durability-mod"; } }
 
@@ -16,12 +19,13 @@ namespace Durability {
 			get { return ConfigurationDataBase.RelativePath + Path.DirectorySeparatorChar + DurabilityConfigData.ConfigFileName; }
 		}
 		public static void ReloadConfigFromFile() {
-			if( DurabilityMod.Instance != null && Main.netMode != 1 ) {
+			if( Main.netMode != 0 ) {
+				throw new Exception( "Cannot reload configs outside of single player." );
+			}
+			if( DurabilityMod.Instance != null ) {
 				DurabilityMod.Instance.Config.LoadFile();
 			}
 		}
-
-		public static DurabilityMod Instance { get; private set; }
 
 
 		////////////////
@@ -64,6 +68,7 @@ namespace Durability {
 				old_config.SetFilePath( this.Config.FileName, ConfigurationDataBase.RelativePath );
 				old_config.Data.VersionSinceUpdate = "1.6.0";
 				old_config.SaveFile();
+				this.Config = old_config;
 			}
 
 			if( !this.Config.LoadFile() ) {
@@ -76,20 +81,19 @@ namespace Durability {
 			}
 		}
 
-
 		public override void Unload() {
 			DurabilityMod.Instance = null;
 			AchievementsHelper.OnTileDestroyed -= this.MyOnTileDestroyedEvent;
 		}
 		
-		////////////////
 
+		////////////////
 
 		public override void HandlePacket( BinaryReader reader, int who_am_i ) {
 			if( Main.netMode == 1 ) {
-				ClientPacketHandlers.RoutePacket( this, reader );
+				ClientPacketHandlers.HandlePacket( this, reader );
 			} else if( Main.netMode == 2 ) {
-				ServerPacketHandlers.RoutePacket( this, reader, who_am_i );
+				ServerPacketHandlers.HandlePacket( this, reader, who_am_i );
 			}
 		}
 
@@ -105,7 +109,7 @@ namespace Durability {
 
 				if( item != null && !item.IsAir ) {
 					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
-						DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this );
+						MyItemInfo item_info = item.GetGlobalItem<MyItemInfo>( this );
 						item_info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
 					}
 				}

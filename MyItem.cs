@@ -8,17 +8,17 @@ using Terraria.ModLoader;
 
 
 namespace Durability {
-    class DurabilityItem : GlobalItem {
+    class MyItem : GlobalItem {
 		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color draw_color, Color item_color, Vector2 origin, float scale ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
 			if( !item_info.HasDurability( item ) ) { return; }
 			
 			if( !item_info.IsBroken ) {
-				int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
+				int max = MyItemInfo.CalculateFullDurability( mymod, item );
 				int hp = max - (int)item_info.WearAndTear;
 
 				float alpha = 0.6f + (0.05f * item_info.RecentUseDisplayBarAnimate);
@@ -60,7 +60,7 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+			var item_info = item.GetGlobalItem<MyItemInfo>( mymod );
 			int max_loss = item_info.CalculateDurabilityLoss( mymod );
 			if( max_loss == 0 ) { return; }
 
@@ -71,15 +71,15 @@ namespace Durability {
 
 		////////////////
 
-		private static DurabilityItemInfo CurrentReforgeDurability = null;
+		private static MyItemInfo CurrentReforgeDurability = null;
 
 		public override void PreReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
+			var item_info = item.GetGlobalItem<MyItemInfo>(this.mod);
 			if( item_info.HasDurability( item ) ) {
-				DurabilityItem.CurrentReforgeDurability = item_info;
+				MyItem.CurrentReforgeDurability = item_info;
 			}
 		}
 
@@ -87,20 +87,20 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
 
-			if( DurabilityItem.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
-				item_info.CopyToMe( DurabilityItem.CurrentReforgeDurability );
+			if( MyItem.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
+				item_info.CopyToMe( MyItem.CurrentReforgeDurability );
 
 				if( mymod.Config.Data.CanRepair ) {
 					item_info.RepairMe( mymod, item );
 				}
 			}
-			DurabilityItem.CurrentReforgeDurability = null;
+			MyItem.CurrentReforgeDurability = null;
 		}
 
 		public override void OnCraft( Item item, Recipe recipe ) {
-			DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			MyItemInfo item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
 
 			item_info.IsUnbreakable = false;
 			//info.IsUnbreakable = info.HasDurability( item );	// Doesn't work?

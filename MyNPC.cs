@@ -2,7 +2,7 @@
 using Terraria.ModLoader;
 
 namespace Durability {
-	class DurabilityNPC : GlobalNPC {
+	class MyNPC : GlobalNPC {
 		public override void SetupShop( int type, Chest shop, ref int next_slot ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Data.Enabled ) { return; }
