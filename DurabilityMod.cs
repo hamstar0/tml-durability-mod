@@ -82,7 +82,7 @@ namespace Durability {
 			}
 
 			if( this.Config.Data.UpdateToLatestVersion() ) {
-				ErrorLogger.Log( "Durability updated to " + DurabilityConfigData.CurrentVersion.ToString() );
+				ErrorLogger.Log( "Durability updated to " + DurabilityConfigData.ConfigVersion.ToString() );
 				this.Config.SaveFile();
 			}
 		}

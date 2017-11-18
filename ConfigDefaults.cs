@@ -7,7 +7,7 @@ namespace Durability {
 	//	'wear and tear'		Accumulated damage to tool or armor.
 	//	'durability'		Amount of wear and tear before tool or armor breaks.
 	public class DurabilityConfigData {
-		public readonly static Version CurrentVersion = new Version( 2, 4, 0 );
+		public readonly static Version ConfigVersion = new Version( 2, 4, 0 );
 		public readonly static string ConfigFileName = "Durability Config.json";
 
 
@@ -287,7 +287,7 @@ namespace Durability {
 				new Version( this.VersionSinceUpdate ) :
 				new Version();
 
-			if( vers_since >= DurabilityConfigData.CurrentVersion ) {
+			if( vers_since >= DurabilityConfigData.ConfigVersion ) {
 				return false;
 			}
 
@@ -320,7 +320,7 @@ namespace Durability {
 				}
 			}
 
-			this.VersionSinceUpdate = DurabilityConfigData.CurrentVersion.ToString();
+			this.VersionSinceUpdate = DurabilityConfigData.ConfigVersion.ToString();
 
 			return true;
 		}
