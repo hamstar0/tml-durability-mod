@@ -15,7 +15,7 @@ namespace Durability {
 		public static string GithubUserName { get { return "hamstar0"; } }
 		public static string GithubProjectName { get { return "tml-durability-mod"; } }
 
-		public static string ConfigRelativeFilePath {
+		public static string ConfigFileRelativePath {
 			get { return ConfigurationDataBase.RelativePath + Path.DirectorySeparatorChar + DurabilityConfigData.ConfigFileName; }
 		}
 		public static void ReloadConfigFromFile() {
