@@ -4,11 +4,11 @@ using Terraria.ModLoader;
 
 
 namespace Durability {
-	class MyProjectile : GlobalProjectile {
+	class DurabilityProjectile : GlobalProjectile {
 		public override bool? CanUseGrapple( int type, Player player ) {
 			Item grapple = PlayerItemHelpers.GetGrappleItem( player );
 			if( grapple != null ) {
-				var item_info = grapple.GetGlobalItem<MyItemInfo>( this.mod );
+				var item_info = grapple.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				if( item_info.IsBroken ) {
 					return false;
 				}
@@ -25,7 +25,7 @@ namespace Durability {
 			Item grapple = PlayerItemHelpers.GetGrappleItem( player );
 			
 			if( grapple != null ) {
-				var item_info = grapple.GetGlobalItem<MyItemInfo>( this.mod );
+				var item_info = grapple.GetGlobalItem<DurabilityItemInfo>( this.mod );
 				item_info.AddWearAndTear( (DurabilityMod)this.mod, grapple, 1, mymod.Config.Data.GrappleWearAndTearMultiplier );
 			}
 		}

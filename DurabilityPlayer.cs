@@ -10,16 +10,16 @@ using Terraria.ModLoader;
 
 
 namespace Durability {
-	class MyPlayer : ModPlayer {
+	class DurabilityPlayer : ModPlayer {
 		private long LastMoney = 0;
 		private Item[] PrevInventory;
 		private Item[] PrevShop;
-		private MyItemInfo ForceCopy = null;
+		private DurabilityItemInfo ForceCopy = null;
 
 
 		public override void clientClone( ModPlayer clone ) {
 			base.clientClone( clone );
-			var myclone = (MyPlayer)clone;
+			var myclone = (DurabilityPlayer)clone;
 
 			myclone.LastMoney = this.LastMoney;
 			myclone.PrevInventory = this.PrevInventory;
@@ -51,7 +51,7 @@ namespace Durability {
 				if( craft_item == null || craft_item.IsAir ) { continue; }
 
 				try {
-					var item_info = craft_item.GetGlobalItem<MyItemInfo>( this.mod );
+					var item_info = craft_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 					if( item_info == null ) { continue; }
 
 					item_info.IsUnbreakable = true;
@@ -81,19 +81,19 @@ namespace Durability {
 
 
 			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetGlobalItem<MyItemInfo>( mymod );
+				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				head_item_info.AddWearAndTear( mymod, head_item, dmg );
 				head_item_info.UpdateCriticalState( (DurabilityMod)this.mod, head_item );
 			}
 
 			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetGlobalItem<MyItemInfo>( mymod );
+				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				body_item_info.AddWearAndTear( mymod, body_item, dmg );
 				body_item_info.UpdateCriticalState( (DurabilityMod)this.mod, body_item );
 			}
 
 			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetGlobalItem<MyItemInfo>( mymod );
+				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				legs_item_info.AddWearAndTear( mymod, legs_item, dmg );
 				legs_item_info.UpdateCriticalState( (DurabilityMod)this.mod, legs_item );
 			}
@@ -110,7 +110,7 @@ namespace Durability {
 						&& proj.type != ProjectileID.ShadowFlameKnife ) {
 					if( item.shoot == proj.type ) {
 						var mymod = (DurabilityMod)this.mod;
-						var item_info = item.GetGlobalItem<MyItemInfo>( mymod );
+						var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 						
 						item_info.AddWearAndTear( mymod, item, 1, mymod.Config.Data.WeaponWearAndTearMultiplier );
 					}
@@ -137,7 +137,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<MyItemInfo>(this.mod);
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
@@ -146,7 +146,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<MyItemInfo>(this.mod);
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
 		}
 
@@ -155,7 +155,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
 
-			var item_info = fishing_rod.GetGlobalItem<MyItemInfo>( mymod );
+			var item_info = fishing_rod.GetGlobalItem<DurabilityItemInfo>( mymod );
 
 			item_info.AddWearAndTear( mymod, fishing_rod, 1, mymod.Config.Data.FishingWearAndTearMultiplier );
 		}
@@ -165,7 +165,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return base.Shoot(item, ref position, ref speedX, ref speedY, ref type, ref damage, ref knockBack); }
 			if( item == null || item.IsAir ) { return false; }
 
-			var item_info = item.GetGlobalItem<MyItemInfo>( mymod );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 			if( !item_info.HasDurability( item ) ) { return true; }
 
 			DurabilityConfigData data = mymod.Config.Data;
@@ -184,7 +184,7 @@ namespace Durability {
 			Item item = player.inventory[player.selectedItem];
 
 			if( !item.IsAir && !player.noItems ) {
-				var item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
+				var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 
 				if( item_info.IsBroken ) {
 					player.noItems = true;
@@ -208,7 +208,7 @@ namespace Durability {
 
 						item_info.AddWearAndTear( (DurabilityMod)this.mod, item, 1, scale );
 						if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-							var mouse_item_info = Main.mouseItem.GetGlobalItem<MyItemInfo>( this.mod );
+							var mouse_item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
 							mouse_item_info.AddWearAndTear( (DurabilityMod)this.mod, Main.mouseItem, 1, scale );
 						}
 					}
@@ -223,7 +223,7 @@ namespace Durability {
 			if( !mymod.Config.Data.Enabled ) { return; }
 
 			Item item = this.player.inventory[this.player.selectedItem];
-			var item_info = item.GetGlobalItem<MyItemInfo>( this.mod );
+			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 
 			if( !item_info.IsBroken && item_info.IsNowBroken(mymod, item) ) {
 				item_info.KillMe( mymod, item );
@@ -245,7 +245,7 @@ namespace Durability {
 			if( curr_item != null && !curr_item.IsAir ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { curr_item = Main.mouseItem; }
 
-				var item_info = curr_item.GetGlobalItem<MyItemInfo>( mymod );
+				var item_info = curr_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				item_info.ConcurrentUses = 0;
 				if( !item_info.IsBroken ) {
 					item_info.UpdateCriticalState( mymod, curr_item );
@@ -253,7 +253,7 @@ namespace Durability {
 			}
 
 			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetGlobalItem<MyItemInfo>( mymod );
+				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				head_item_info.ConcurrentUses = 0;
 
 				if( head_item_info.IsBroken ) {
@@ -261,14 +261,14 @@ namespace Durability {
 					ItemHelpers.DestroyItem( head_item );
 
 					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<MyItemInfo>( mymod );
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 					new_item_info.KillMe( mymod, new_item );
 					player.armor[0] = new Item();
 				}
 			}
 
 			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetGlobalItem<MyItemInfo>( mymod );
+				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				body_item_info.ConcurrentUses = 0;
 
 				if( body_item_info.IsBroken ) {
@@ -276,14 +276,14 @@ namespace Durability {
 					ItemHelpers.DestroyItem( body_item );
 
 					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<MyItemInfo>( mymod );
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 					new_item_info.KillMe( mymod, new_item );
 					player.armor[1] = new Item();
 				}
 			}
 
 			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetGlobalItem<MyItemInfo>( mymod );
+				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 				legs_item_info.ConcurrentUses = 0;
 
 				if( legs_item_info.IsBroken ) {
@@ -291,7 +291,7 @@ namespace Durability {
 					ItemHelpers.DestroyItem( legs_item );
 
 					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<MyItemInfo>( mymod );
+					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
 					new_item_info.KillMe( mymod, new_item );
 					player.armor[2] = new Item();
 				}
@@ -309,7 +309,7 @@ namespace Durability {
 			// Note: Due to a (tML?) bug, this method of copying seems necessary?
 			if( this.ForceCopy != null ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-					var item_info = Main.mouseItem.GetGlobalItem<MyItemInfo>( this.mod );
+					var item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
 					item_info.CopyToMe( this.ForceCopy );
 				}
 				this.ForceCopy = null;
@@ -382,8 +382,8 @@ namespace Durability {
 				curr_item = curr_inv[kv.Key];
 			}
 
-			var prev_info = prev_item.GetGlobalItem<MyItemInfo>( this.mod );
-			var curr_info = curr_item.GetGlobalItem<MyItemInfo>( this.mod );
+			var prev_info = prev_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var curr_info = curr_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 			
 			this.ForceCopy = prev_info;
 		}

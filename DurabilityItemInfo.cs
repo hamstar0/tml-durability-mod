@@ -9,7 +9,7 @@ using Terraria.ModLoader.IO;
 
 
 namespace Durability {
-	class MyItemInfo : GlobalItem {
+	class DurabilityItemInfo : GlobalItem {
 		public override bool InstancePerEntity { get { return true; } }
 		//public override bool CloneNewInstances { get { return true; } }
 
@@ -17,13 +17,13 @@ namespace Durability {
 		public void Initialize( DurabilityMod mymod, Item item, double wear, int repairs ) {
 			this.WearAndTear = wear;
 			this.Repairs = repairs;
-			this.IsBroken = wear >= MyItemInfo.CalculateFullDurability( mymod, item );
+			this.IsBroken = wear >= DurabilityItemInfo.CalculateFullDurability( mymod, item );
 
 			this.IsInitialized = true;
 		}
 
 		public override GlobalItem Clone( Item item, Item item_clone ) {
-			var clone = (MyItemInfo)base.Clone( item, item_clone );
+			var clone = (DurabilityItemInfo)base.Clone( item, item_clone );
 			clone.WearAndTear = this.WearAndTear;
 			clone.Repairs = this.Repairs;
 			clone.IsUnbreakable = this.IsUnbreakable;
@@ -33,7 +33,7 @@ namespace Durability {
 
 			return clone;
 		}
-		public void CopyToMe( MyItemInfo info ) {
+		public void CopyToMe( DurabilityItemInfo info ) {
 			this.WearAndTear = info.WearAndTear;
 			this.IsUnbreakable = info.IsUnbreakable;
 			this.Repairs = info.Repairs;
@@ -165,14 +165,14 @@ namespace Durability {
 
 
 		public void AddWearAndTear( DurabilityMod mymod, Item item, int hits = 1, double multiplier = 1d ) {
-			if( !this.HasDurability( item ) || this.ConcurrentUses >= MyItemInfo.MaxConcurrentUses ) { return; }
+			if( !this.HasDurability( item ) || this.ConcurrentUses >= DurabilityItemInfo.MaxConcurrentUses ) { return; }
 
 			this.AddWearAndTearForMe( mymod, item, hits, multiplier );
 
 			// Propagate effect to mouse item, if applicable
 			if( Main.netMode != 2 && item.owner == Main.myPlayer ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir && !Main.mouseItem.IsNotTheSameAs( item ) ) {
-					var mouse_item_info = Main.mouseItem.GetGlobalItem<MyItemInfo>( mymod );
+					var mouse_item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( mymod );
 					mouse_item_info.AddWearAndTearForMe( mymod, Main.mouseItem, hits, multiplier );
 				}
 			}
@@ -204,7 +204,7 @@ namespace Durability {
 		////////////////
 		
 		public bool IsNowBroken( DurabilityMod mymod, Item item ) {
-			int max = MyItemInfo.CalculateFullDurability( mymod, item );
+			int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 			return this.WearAndTear >= max;
 		}
 
@@ -228,7 +228,7 @@ namespace Durability {
 
 
 		public void UpdateCriticalState( DurabilityMod mymod, Item item ) {
-			double max = MyItemInfo.CalculateFullDurability( mymod, item );
+			double max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 			double ratio = (max - this.WearAndTear) / max;
 
 			if( !this.IsCritical ) {
@@ -251,7 +251,7 @@ namespace Durability {
 
 		public void KillMe( DurabilityMod mymod, Item item ) {
 			this.IsBroken = true;
-			this.WearAndTear = MyItemInfo.CalculateFullDurability( mymod, item );
+			this.WearAndTear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
 
 			string item_name = item.Name;
 			Player player = Main.player[ item.owner ];

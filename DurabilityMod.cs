@@ -115,7 +115,7 @@ namespace Durability {
 
 				if( item != null && !item.IsAir ) {
 					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
-						MyItemInfo item_info = item.GetGlobalItem<MyItemInfo>( this );
+						DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this );
 						item_info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
 					}
 				}
