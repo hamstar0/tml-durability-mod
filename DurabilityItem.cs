@@ -64,8 +64,9 @@ namespace Durability {
 			int max_loss = item_info.CalculateDurabilityLoss( mymod );
 			if( max_loss == 0 ) { return; }
 
-			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: "+max_loss );
-			tip.overrideColor = Color.Red;
+			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: " + max_loss ) {
+				overrideColor = Color.Red
+			};
 			tooltips.Add( tip );
 		}
 
@@ -73,14 +74,15 @@ namespace Durability {
 
 		private static DurabilityItemInfo CurrentReforgeDurability = null;
 
-		public override void PreReforge( Item item ) {
+		public override bool NewPreReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Enabled ) { return; }
+			if( !mymod.Config.Enabled ) { return true; }
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			if( item_info.HasDurability( item ) ) {
 				DurabilityItem.CurrentReforgeDurability = item_info;
 			}
+			return true;
 		}
 
 		public override void PostReforge( Item item ) {

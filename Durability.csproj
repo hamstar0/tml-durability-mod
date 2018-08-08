@@ -58,6 +58,8 @@
     <Compile Include="ConfigDefaults.cs" />
     <Compile Include="DurabilityMod_Meta.cs" />
     <Compile Include="DurabilityNPC.cs" />
+    <Compile Include="DurabilityPlayer_ItemUse.cs" />
+    <Compile Include="DurabilityPlayer_Update.cs" />
     <Compile Include="DurabilityPlayer_Load.cs" />
     <Compile Include="DurabilityProjectile.cs" />
     <Compile Include="DurabilityMod.cs" />
@@ -82,7 +84,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files\Steam\steamapps\common\Terraria\tModLoaderServer.exe" -build "$(ProjectDir)\" -eac "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>"C:\Program Files (x86)\Steam\steamapps\common\terraria\tModLoaderServer.exe" -build "$(ProjectDir)\" -eac "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

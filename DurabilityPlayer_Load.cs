@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace Durability {
 	partial class DurabilityPlayer : ModPlayer {
-		private void onLocalConnect() {
+		private void OnLocalConnect() {
 			// Because crafting recipe items showing a durability bar is confusing
 			for( int i = 0; i < Main.recipe.Length; i++ ) {
 				if( Main.recipe[i] == null ) { continue; }
@@ -23,14 +23,14 @@ namespace Durability {
 		}
 
 		private void OnSingleConnect() {
-			this.onLocalConnect();
+			this.OnLocalConnect();
 		}
 
 		private void OnClientConnect() {
 			var mymod = (DurabilityMod)this.mod;
 			ClientPacketHandlers.SendSettingsRequestFromClient( mymod, player );
 
-			this.onLocalConnect();
+			this.OnLocalConnect();
 		}
 
 		private void OnServerConnect() { }
