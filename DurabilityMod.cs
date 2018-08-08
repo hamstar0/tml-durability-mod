@@ -41,12 +41,6 @@ namespace Durability {
 		public override void Load() {
 			DurabilityMod.Instance = this;
 
-			var hamhelpmod = ModLoader.GetMod( "HamstarHelpers" );
-			var min_vers = new Version( 1, 2, 0 );
-			if( hamhelpmod.Version < min_vers ) {
-				throw new Exception( "Hamstar Helpers must be version " + min_vers.ToString() + " or greater." );
-			}
-
 			if( Main.netMode != 2 ) {   // Not server
 				this.DestroyedTex = ModLoader.GetTexture( "Terraria/MapDeath" );
 			}

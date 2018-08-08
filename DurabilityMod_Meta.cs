@@ -1,5 +1,4 @@
-﻿using Terraria.GameContent.Achievements;
-using Terraria.ModLoader;
+﻿using Terraria.ModLoader;
 using Terraria;
 using System.IO;
 using System;
