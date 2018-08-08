@@ -31,7 +31,7 @@ namespace Durability {
 			}
 
 			var new_config = new DurabilityConfigData();
-			//new_config.SetDefaults();
+			new_config.SetDefaults();
 
 			DurabilityMod.Instance.ConfigJson.SetData( new_config );
 			DurabilityMod.Instance.ConfigJson.SaveFile();

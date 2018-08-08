@@ -297,9 +297,9 @@ namespace Durability {
 
 			if( vers_since >= DurabilityConfigData.ConfigVersion ) {
 				return false;
-			} else {
-				this.SetDefaults();
 			}
+
+			this.SetDefaults();
 
 			this.VersionSinceUpdate = DurabilityConfigData.ConfigVersion.ToString();
 

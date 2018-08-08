@@ -32,7 +32,8 @@ namespace Durability {
 			};
 
 			this.DestroyedTex = null;
-			this.ConfigJson = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath );
+			this.ConfigJson = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath,
+				new DurabilityConfigData() );
 		}
 
 		////////////////
