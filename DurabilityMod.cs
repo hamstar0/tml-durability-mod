@@ -39,7 +39,7 @@ namespace Durability {
 		////////////////
 
 		public override void Load() {
-			DurabilityMod.Instance = this;
+			DurabilityMod.Instance = this; 
 
 			if( Main.netMode != 2 ) {   // Not server
 				this.DestroyedTex = ModLoader.GetTexture( "Terraria/MapDeath" );
