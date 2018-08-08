@@ -1,5 +1,9 @@
+.git/
 .vs/
 bin/
 obj/
 Properties/
 .gitignore
+.gitattributes
+desktop.ini
+copy_sources.bat

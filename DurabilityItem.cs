@@ -1,4 +1,4 @@
-﻿using HamstarHelpers.HudHelpers;
+﻿using HamstarHelpers.Helpers.HudHelpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,7 +11,7 @@ namespace Durability {
     class DurabilityItem : GlobalItem {
 		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color draw_color, Color item_color, Vector2 origin, float scale ) {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Data.Enabled ) { return; }
+			if( !mymod.Config.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
@@ -30,11 +30,11 @@ namespace Durability {
 					item_info.RecentUseDisplayBarAnimate--;
 				}
 
-				if( mymod.Config.Data.ShowBar ) {
+				if( mymod.Config.ShowBar ) {
 					HudHealthBarHelpers.DrawHealthBar( sb, pos_x + 1f, pos_y + 5f, max - (int)item_info.WearAndTear, max, color, 0.8f );
 				}
 
-				if( mymod.Config.Data.ShowNumbers ) {
+				if( mymod.Config.ShowNumbers ) {
 					var player = Main.player[ Main.myPlayer ];
 					Item hover_item = Main.HoverItem;
 					Item selected = player.inventory[ player.selectedItem ];
@@ -58,7 +58,7 @@ namespace Durability {
 		
 		public override void ModifyTooltips( Item item, List<TooltipLine> tooltips ) {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Data.Enabled ) { return; }
+			if( !mymod.Config.Enabled ) { return; }
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
 			int max_loss = item_info.CalculateDurabilityLoss( mymod );
@@ -75,7 +75,7 @@ namespace Durability {
 
 		public override void PreReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Data.Enabled ) { return; }
+			if( !mymod.Config.Enabled ) { return; }
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
 			if( item_info.HasDurability( item ) ) {
@@ -85,14 +85,14 @@ namespace Durability {
 
 		public override void PostReforge( Item item ) {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Data.Enabled ) { return; }
+			if( !mymod.Config.Enabled ) { return; }
 
 			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
 
 			if( DurabilityItem.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
 				item_info.CopyToMe( DurabilityItem.CurrentReforgeDurability );
 
-				if( mymod.Config.Data.CanRepair ) {
+				if( mymod.Config.CanRepair ) {
 					item_info.RepairMe( mymod, item );
 				}
 			}

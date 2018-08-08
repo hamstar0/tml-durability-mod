@@ -4,15 +4,17 @@ Future
 -	Add random drops of very low durability, unrepairable end-game items
 -	F&T
 	-	Laser machine gun does not trigger with each fire
+
+
+
+v2.6
 -	Lower sell value of low durability items
 -	Implement 'Work Orders' (fully repairs items; takes 24 hours)
-v2.4.1
+-	Add 'Broken' prefix to items that break
+
 -	Refactor for updated config
 -	Refactor for updated net protocol
 -	Refactor for updated code
--	Fix durability auto stack glitch
--	Add 'Broken' prefix to items that break
-
 v2.4
 -	Update Honor Bound
 -	Set broken items to be rendered useless; not destroyed

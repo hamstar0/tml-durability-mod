@@ -1,4 +1,4 @@
-﻿using HamstarHelpers.ItemHelpers;
+﻿using HamstarHelpers.Helpers.ItemHelpers;
 using Microsoft.Xna.Framework;
 using System;
 using System.IO;
@@ -106,13 +106,13 @@ namespace Durability {
 		////////////////
 
 		public static int CalculateFullDurability( DurabilityMod mymod, Item item ) {
-			var data = mymod.Config.Data;
+			var data = mymod.Config;
 			double val = item.value;
 			double mul = data.DurabilityMultiplier;
 			double add = data.DurabilityAdditive;
 			double hits_per_sec = 60d / (double)ItemHelpers.CalculateStandardUseTime( item );
-			bool is_armor = ItemIdentityHelpers.IsArmor( item );
-			bool is_tool = ItemIdentityHelpers.IsTool( item );
+			bool is_armor = ItemAttributeHelpers.IsArmor( item );
+			bool is_tool = ItemAttributeHelpers.IsTool( item );
 
 			if( is_armor && !is_tool ) { hits_per_sec = 1d; }
 
@@ -148,12 +148,12 @@ namespace Durability {
 		}
 
 		public int CalculateDurabilityLoss( DurabilityMod mymod ) {
-			return (int)((float)this.Repairs * mymod.Config.Data.MaxDurabilityLostPerRepair);
+			return (int)((float)this.Repairs * mymod.Config.MaxDurabilityLostPerRepair);
 		}
 		
 
 		public bool IsHandy( Item item ) {
-			return ItemIdentityHelpers.IsTool( item ) || ItemIdentityHelpers.IsArmor( item ) || ItemIdentityHelpers.IsGrapple( item );
+			return ItemAttributeHelpers.IsTool( item ) || ItemAttributeHelpers.IsArmor( item ) || ItemAttributeHelpers.IsGrapple( item );
 		}
 		public bool HasDurability( Item item ) {
 			return this.IsHandy(item) && !this.IsUnbreakable && !item.consumable;
@@ -179,7 +179,7 @@ namespace Durability {
 		}
 
 		private void AddWearAndTearForMe( DurabilityMod mymod, Item item, int hits, double multiplier ) {
-			this.WearAndTear += (double)hits * (double)mymod.Config.Data.GeneralWearAndTearMultiplier * multiplier;
+			this.WearAndTear += (double)hits * (double)mymod.Config.GeneralWearAndTearMultiplier * multiplier;
 			this.ConcurrentUses++;
 			this.RecentUseDisplayBarAnimate = 8;
 			
@@ -210,7 +210,7 @@ namespace Durability {
 
 
 		public bool CanRepair( DurabilityMod mymod, Item item ) {
-			DurabilityConfigData data = mymod.Config.Data;
+			DurabilityConfigData data = mymod.Config;
 			bool can_repair_broken = !this.IsBroken || (data.CanRepairBroken && this.IsBroken);
 
 			return data.CanRepair && can_repair_broken && this.WearAndTear > this.CalculateDurabilityLoss( mymod );
@@ -220,7 +220,7 @@ namespace Durability {
 		public void RepairMe( DurabilityMod mymod, Item item ) {
 			this.Repairs++;
 
-			if( this.RemoveWearAndTear( mymod, item, mymod.Config.Data.RepairAmount ) ) {
+			if( this.RemoveWearAndTear( mymod, item, mymod.Config.RepairAmount ) ) {
 				Main.PlaySound( SoundID.Item37, item.position );
 				this.IsBroken = false;
 			}
@@ -232,7 +232,7 @@ namespace Durability {
 			double ratio = (max - this.WearAndTear) / max;
 
 			if( !this.IsCritical ) {
-				if( ratio <= mymod.Config.Data.CriticalWarningPercent ) {
+				if( ratio <= mymod.Config.CriticalWarningPercent ) {
 					this.IsCritical = true;
 
 					var player = Main.player[Main.myPlayer];
@@ -242,7 +242,7 @@ namespace Durability {
 					Main.PlaySound( SoundID.NPCHit18, player.position );
 				}
 			} else {
-				if( ratio > mymod.Config.Data.CriticalWarningPercent ) {
+				if( ratio > mymod.Config.CriticalWarningPercent ) {
 					this.IsCritical = false;
 				}
 			}

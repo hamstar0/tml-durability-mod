@@ -1,4 +1,4 @@
-using HamstarHelpers.ItemHelpers;
+using HamstarHelpers.Helpers.ItemHelpers;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -34,7 +34,7 @@ namespace Durability.Items {
 				Item item = new Item();
 				item.SetDefaults( i );
 
-				if( !ItemIdentityHelpers.IsArmor(item) ) { continue; }
+				if( !ItemAttributeHelpers.IsArmor(item) ) { continue; }
 
 				var recipe = new SmithedArmorRecipe( (DurabilityMod)this.mod, item );
 				recipe.AddRecipe();
@@ -89,9 +89,9 @@ namespace Durability.Items {
 
 		public override bool RecipeAvailable() {
 			var mymod = (DurabilityMod)this.mod;
-			if( !mymod.Config.Data.Enabled ) { return false; }
+			if( !mymod.Config.Enabled ) { return false; }
 
-			bool can_repair = mymod.Config.Data.CanRepair;
+			bool can_repair = mymod.Config.CanRepair;
 
 			if( can_repair && Main.netMode != 2 ) {
 				Player player = Main.player[Main.myPlayer];

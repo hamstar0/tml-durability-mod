@@ -1,3 +1,5 @@
+NOTE: DUE TO TMODLOADER UPDATES, THIS MOD HAS BUGS WITH CERTAIN FEATURES. USE AT YOUR OWN RISK.
+
 Adds durability limits to weapons and armor. Formula for computing durability (approx. # of uses):
 - Sell value of = x, Avg hits per second = y:
     0.5 * ( (y/4 * x^1.54) / (5 + x) ) + 50

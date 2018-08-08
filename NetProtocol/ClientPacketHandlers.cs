@@ -43,7 +43,9 @@ namespace Durability.NetProtocol {
 			// Clients only
 			if( Main.netMode != 1 ) { return; }
 
-			mymod.Config.DeserializeMe( reader.ReadString() );
+			bool success;
+
+			mymod.ConfigJson.DeserializeMe( reader.ReadString(), out success );
 		}
 	}
 }

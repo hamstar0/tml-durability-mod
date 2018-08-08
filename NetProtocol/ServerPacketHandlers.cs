@@ -29,7 +29,7 @@ namespace Durability.NetProtocol {
 
 			ModPacket packet = mymod.GetPacket();
 			packet.Write( (byte)DurabilityNetProtocolTypes.ModSettings );
-			packet.Write( (string)mymod.Config.SerializeMe() );
+			packet.Write( (string)mymod.ConfigJson.SerializeMe() );
 
 			packet.Send( (int)player.whoAmI );
 		}

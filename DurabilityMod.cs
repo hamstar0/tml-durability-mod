@@ -2,35 +2,23 @@
 using Terraria.ModLoader;
 using Terraria;
 using System.IO;
-using HamstarHelpers.Utilities.Config;
 using Microsoft.Xna.Framework.Graphics;
 using Durability.NetProtocol;
 using System;
+using HamstarHelpers.Components.Config;
 
 
 namespace Durability {
-	class DurabilityMod : Mod {
+	partial class DurabilityMod : Mod {
 		public static DurabilityMod Instance { get; private set; }
-
-		public static string GithubUserName { get { return "hamstar0"; } }
-		public static string GithubProjectName { get { return "tml-durability-mod"; } }
-
-		public static string ConfigFileRelativePath {
-			get { return ConfigurationDataBase.RelativePath + Path.DirectorySeparatorChar + DurabilityConfigData.ConfigFileName; }
-		}
-		public static void ReloadConfigFromFile() {
-			if( Main.netMode != 0 ) {
-				throw new Exception( "Cannot reload configs outside of single player." );
-			}
-			if( DurabilityMod.Instance != null ) {
-				DurabilityMod.Instance.Config.LoadFile();
-			}
-		}
+		
 
 
 		////////////////
 
-		public JsonConfig<DurabilityConfigData> Config { get; private set; }
+		public JsonConfig<DurabilityConfigData> ConfigJson { get; private set; }
+		public DurabilityConfigData Config { get { return this.ConfigJson.Data; } }
+
 		public Texture2D DestroyedTex { get; private set; }
 
 
@@ -44,7 +32,7 @@ namespace Durability {
 			};
 
 			this.DestroyedTex = null;
-			this.Config = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath, new DurabilityConfigData() );
+			this.ConfigJson = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath );
 		}
 
 		////////////////
@@ -67,23 +55,13 @@ namespace Durability {
 		}
 		
 		private void LoadConfig() {
-			// Update old config to new location
-			var old_config = new JsonConfig<DurabilityConfigData>( "Durability 1.6.0.json", "", new DurabilityConfigData() );
-			if( old_config.LoadFile() ) {
-				old_config.DestroyFile();
-				old_config.SetFilePath( this.Config.FileName, ConfigurationDataBase.RelativePath );
-				old_config.Data.VersionSinceUpdate = "1.6.0";
-				old_config.SaveFile();
-				this.Config = old_config;
+			if( !this.ConfigJson.LoadFile() ) {
+				this.ConfigJson.SaveFile();
 			}
 
-			if( !this.Config.LoadFile() ) {
-				this.Config.SaveFile();
-			}
-
-			if( this.Config.Data.UpdateToLatestVersion() ) {
+			if( this.Config.UpdateToLatestVersion() ) {
 				ErrorLogger.Log( "Durability updated to " + DurabilityConfigData.ConfigVersion.ToString() );
-				this.Config.SaveFile();
+				this.ConfigJson.SaveFile();
 			}
 		}
 
@@ -108,7 +86,7 @@ namespace Durability {
 		////////////////
 
 		public void MyOnTileDestroyedEvent( Player player, ushort item_id ) {
-			if( !this.Config.Data.Enabled ) { return; }
+			if( !this.Config.Enabled ) { return; }
 
 			if( player.itemAnimation > 0 && player.toolTime == 0 && player.controlUseItem ) {
 				Item item = player.inventory[ player.selectedItem ];
@@ -116,7 +94,7 @@ namespace Durability {
 				if( item != null && !item.IsAir ) {
 					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
 						DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this );
-						item_info.AddWearAndTear( this, item, 1, this.Config.Data.ToolWearAndTearMultiplier );
+						item_info.AddWearAndTear( this, item, 1, this.Config.ToolWearAndTearMultiplier );
 					}
 				}
 			}
