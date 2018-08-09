@@ -1,4 +1,5 @@
-﻿using HamstarHelpers.Helpers.PlayerHelpers;
+﻿using HamstarHelpers.Helpers.DebugHelpers;
+using HamstarHelpers.Helpers.PlayerHelpers;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -39,7 +40,8 @@ namespace Durability {
 		}
 
 		public override void OnEnterWorld( Player player ) {
-			if( player.whoAmI != this.player.whoAmI ) { return; }
+			if( player.whoAmI != Main.myPlayer ) { return; }
+			if( this.player.whoAmI != Main.myPlayer ) { return; }
 
 			var mymod = (DurabilityMod)this.mod;
 
@@ -52,7 +54,7 @@ namespace Durability {
 
 			if( mymod.Config.DebugModeInfo ) {
 				bool _;
-				ErrorLogger.Log( "ResetMode.ResetModePlayer.OnEnterWorld - " + player.name + " joined (" + PlayerIdentityHelpers.GetUniqueId( player, out _ ) + ")" );
+				LogHelpers.Log( "Durability.DurabilityPlayer.OnEnterWorld - " + player.name + " joined (" + PlayerIdentityHelpers.GetUniqueId( player, out _ ) + ")" );
 			}
 
 			if( Main.netMode == 0 ) {
