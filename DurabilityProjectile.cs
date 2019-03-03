@@ -8,8 +8,8 @@ namespace Durability {
 		public override bool? CanUseGrapple( int type, Player player ) {
 			Item grapple = PlayerItemHelpers.GetGrappleItem( player );
 			if( grapple != null ) {
-				var item_info = grapple.GetGlobalItem<DurabilityItemInfo>( this.mod );
-				if( item_info.IsBroken ) {
+				var itemInfo = grapple.GetGlobalItem<DurabilityItemInfo>();
+				if( itemInfo.IsBroken ) {
 					return false;
 				}
 			}
@@ -25,8 +25,8 @@ namespace Durability {
 			Item grapple = PlayerItemHelpers.GetGrappleItem( player );
 			
 			if( grapple != null ) {
-				var item_info = grapple.GetGlobalItem<DurabilityItemInfo>( this.mod );
-				item_info.AddWearAndTear( (DurabilityMod)this.mod, grapple, 1, mymod.Config.GrappleWearAndTearMultiplier );
+				var itemInfo = grapple.GetGlobalItem<DurabilityItemInfo>();
+				itemInfo.AddWearAndTear( grapple, 1, mymod.Config.GrappleWearAndTearMultiplier );
 			}
 		}
 	}

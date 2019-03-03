@@ -67,21 +67,21 @@ namespace Durability.Items {
 
 		////////////////
 
-		public override int ConsumeItem( int item_type, int quantity ) {
+		public override int ConsumeItem( int itemType, int quantity ) {
 			var mymod = (DurabilityMod)this.mod;
 			Player player = Main.player[ Main.myPlayer ];
-			Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, item_type );
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+			Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, itemType );
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 			//var item_info = item.GetModInfo<DurabilityItemInfo>( this.mod );
 
-			if( this.mod.ItemType("SmithingHammerItem") == item_type ) {
-				int max_wear = DurabilityItemInfo.CalculateFullDurability( mymod, item );
-				int wear = (max_wear / 3) + 1;
+			if( this.mod.ItemType("SmithingHammerItem") == itemType ) {
+				int maxWear = DurabilityItemInfo.CalculateFullDurability( item );
+				int wear = (maxWear / 3) + 1;
 
-				item_info.AddWearAndTear( mymod, item, wear, 1 );
+				itemInfo.AddWearAndTear( item, wear, 1 );
 				return 0;
 			} else if( item != null ) {
-				this.PrevInfo = (DurabilityItemInfo)item_info.Clone();
+				this.PrevInfo = (DurabilityItemInfo)itemInfo.Clone();
 			}
 
 			return quantity;
@@ -91,18 +91,18 @@ namespace Durability.Items {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return false; }
 
-			bool can_repair = mymod.Config.CanRepair;
+			bool canRepair = mymod.Config.CanRepair;
 
-			if( can_repair && Main.netMode != 2 ) {
+			if( canRepair && Main.netMode != 2 ) {
 				Player player = Main.player[Main.myPlayer];
 				Item item = ItemFinderHelpers.FindFirstPlayerItemOfType( player, this.ItemType );
 
 				if( item != null && !item.IsAir ) {
-					var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
-					can_repair = item_info.CanRepair( mymod, item );
+					var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+					canRepair = itemInfo.CanRepair( mymod, item );
 				}
 			}
-			return can_repair;
+			return canRepair;
 		}
 
 		public override void OnCraft( Item item ) {
@@ -114,12 +114,11 @@ namespace Durability.Items {
 				ErrorLogger.Log( "Mismatched item type for " + item.Name + ": Found " + item.type + ", expected "+this.ItemType );
 				return;
 			}
+			
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			itemInfo.CopyToMe( this.PrevInfo );
 
-			var mymod = (DurabilityMod)this.mod;
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
-			item_info.CopyToMe( this.PrevInfo );
-
-			item_info.RepairMe( mymod, item );
+			itemInfo.RepairMe( item );
 		}
 	}
 }

@@ -5,12 +5,12 @@ using Terraria.ModLoader;
 
 namespace Durability.NetProtocol {
 	static class ServerPacketHandlers {
-		public static void HandlePacket( DurabilityMod mymod, BinaryReader reader, int who_am_i ) {
+		public static void HandlePacket( BinaryReader reader, int whoAmI ) {
 			DurabilityNetProtocolTypes protocol = (DurabilityNetProtocolTypes)reader.ReadByte();
 
 			switch( protocol ) {
 			case DurabilityNetProtocolTypes.ModSettingsRequest:
-				ServerPacketHandlers.ReceiveSettingsRequestOnServer( mymod, reader, who_am_i );
+				ServerPacketHandlers.ReceiveSettingsRequestOnServer( reader, whoAmI );
 				break;
 			default:
 				ErrorLogger.Log( "Invalid packet protocol: " + protocol );
@@ -24,10 +24,12 @@ namespace Durability.NetProtocol {
 		// Senders (Server)
 		////////////////////////////////
 
-		public static void SendSettingsFromServer( DurabilityMod mymod, Player player ) {
-			if( Main.netMode != 2 ) { return; }	// Server only
+		public static void SendSettingsFromServer( Player player ) {
+			if( Main.netMode != 2 ) { return; } // Server only
 
+			var mymod = DurabilityMod.Instance;
 			ModPacket packet = mymod.GetPacket();
+
 			packet.Write( (byte)DurabilityNetProtocolTypes.ModSettings );
 			packet.Write( (string)mymod.ConfigJson.SerializeMe() );
 
@@ -40,10 +42,11 @@ namespace Durability.NetProtocol {
 		// Recipients (Server)
 		////////////////////////////////
 
-		private static void ReceiveSettingsRequestOnServer( DurabilityMod mymod, BinaryReader reader, int who_am_i ) {
+		private static void ReceiveSettingsRequestOnServer( BinaryReader reader, int whoAmI ) {
 			if( Main.netMode != 2 ) { return; } // Server only
 
-			ServerPacketHandlers.SendSettingsFromServer( mymod, Main.player[who_am_i] );
+			var mymod = DurabilityMod.Instance;
+			ServerPacketHandlers.SendSettingsFromServer( Main.player[whoAmI] );
 		}
 	}
 }

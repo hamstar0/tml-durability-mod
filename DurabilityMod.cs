@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Durability.NetProtocol;
 using System;
 using HamstarHelpers.Components.Config;
+using HamstarHelpers.Helpers.TmlHelpers.ModHelpers;
+using HamstarHelpers.Helpers.TmlHelpers;
+using HamstarHelpers.Components.Errors;
 
 
 namespace Durability {
@@ -17,20 +20,15 @@ namespace Durability {
 		////////////////
 
 		public JsonConfig<DurabilityConfigData> ConfigJson { get; private set; }
-		public DurabilityConfigData Config { get { return this.ConfigJson.Data; } }
+		public DurabilityConfigData Config => this.ConfigJson.Data;
 
 		public Texture2D DestroyedTex { get; private set; }
+
 
 
 		////////////////
 
 		public DurabilityMod() {
-			this.Properties = new ModProperties() {
-				Autoload = true,
-				AutoloadGores = true,
-				AutoloadSounds = true
-			};
-
 			this.DestroyedTex = null;
 			this.ConfigJson = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath,
 				new DurabilityConfigData() );
@@ -39,6 +37,9 @@ namespace Durability {
 		////////////////
 
 		public override void Load() {
+			string depErr = TmlHelpers.ReportBadDependencyMods( this );
+			if( depErr != null ) { throw new HamstarException( depErr ); }
+
 			DurabilityMod.Instance = this; 
 
 			if( Main.netMode != 2 ) {   // Not server
@@ -55,7 +56,7 @@ namespace Durability {
 			}
 
 			if( this.Config.UpdateToLatestVersion() ) {
-				ErrorLogger.Log( "Durability updated to " + DurabilityConfigData.ConfigVersion.ToString() );
+				ErrorLogger.Log( "Durability updated to " + this.Version.ToString() );
 				this.ConfigJson.SaveFile();
 			}
 		}
@@ -68,19 +69,25 @@ namespace Durability {
 
 		////////////////
 
-		public override void HandlePacket( BinaryReader reader, int who_am_i ) {
+		public override void HandlePacket( BinaryReader reader, int whoAmI ) {
 			if( Main.netMode == 1 ) {
-				ClientPacketHandlers.HandlePacket( this, reader );
+				ClientPacketHandlers.HandlePacket( reader );
 			} else if( Main.netMode == 2 ) {
-				ServerPacketHandlers.HandlePacket( this, reader, who_am_i );
+				ServerPacketHandlers.HandlePacket( reader, whoAmI );
 			}
 		}
 
 
+		////////////////
+
+		public override object Call( params object[] args ) {
+			return ModBoilerplateHelpers.HandleModCall( typeof(DurabilityAPI), args );
+		}
+
 
 		////////////////
 
-		public void MyOnTileDestroyedEvent( Player player, ushort item_id ) {
+		public void MyOnTileDestroyedEvent( Player player, ushort itemId ) {
 			if( !this.Config.Enabled ) { return; }
 
 			if( player.itemAnimation > 0 && player.toolTime == 0 && player.controlUseItem ) {
@@ -88,8 +95,8 @@ namespace Durability {
 
 				if( item != null && !item.IsAir ) {
 					if( item.pick > 0 || item.axe > 0 || item.hammer > 0 ) {
-						DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this );
-						item_info.AddWearAndTear( this, item, 1, this.Config.ToolWearAndTearMultiplier );
+						DurabilityItemInfo itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+						itemInfo.AddWearAndTear( item, 1, this.Config.ToolWearAndTearMultiplier );
 					}
 				}
 			}

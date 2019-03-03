@@ -12,9 +12,10 @@ namespace Durability {
 		private DurabilityItemInfo ForceCopy = null;
 
 
+
 		////////////////
 
-		public override bool CloneNewInstances { get { return false; } }
+		public override bool CloneNewInstances => false;
 
 		public override void clientClone( ModPlayer clone ) {
 			base.clientClone( clone );
@@ -29,11 +30,11 @@ namespace Durability {
 
 		////////////////
 
-		public override void SyncPlayer( int to_who, int from_who, bool new_player ) {
+		public override void SyncPlayer( int toWho, int fromWho, bool newPlayer ) {
 			var mymod = (DurabilityMod)this.mod;
 
 			if( Main.netMode == 2 ) {
-				if( to_who == -1 && from_who == this.player.whoAmI ) {
+				if( toWho == -1 && fromWho == this.player.whoAmI ) {
 					this.OnServerConnect();
 				}
 			}
@@ -48,13 +49,13 @@ namespace Durability {
 			if( Main.netMode == 0 ) {
 				if( !mymod.ConfigJson.LoadFile() ) {
 					mymod.ConfigJson.SaveFile();
-					ErrorLogger.Log( "Durability config " + DurabilityConfigData.ConfigVersion.ToString() + " created (ModPlayer.OnEnterWorld())." );
+					ErrorLogger.Log( "Durability config " + mymod.Version.ToString() + " created (ModPlayer.OnEnterWorld())." );
 				}
 			}
 
 			if( mymod.Config.DebugModeInfo ) {
 				bool _;
-				LogHelpers.Log( "Durability.DurabilityPlayer.OnEnterWorld - " + player.name + " joined (" + PlayerIdentityHelpers.GetUniqueId( player, out _ ) + ")" );
+				LogHelpers.Alert( player.name + " joined (" + PlayerIdentityHelpers.GetProperUniqueId( player ) + ")" );
 			}
 
 			if( Main.netMode == 0 ) {

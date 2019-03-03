@@ -12,62 +12,62 @@ namespace Durability {
 			if( !mymod.Config.Enabled ) { return; }
 			Player player = this.player;
 
-			Item curr_item = player.inventory[player.selectedItem];
-			Item head_item = player.armor[0];
-			Item body_item = player.armor[1];
-			Item legs_item = player.armor[2];
+			Item currItem = player.inventory[player.selectedItem];
+			Item headItem = player.armor[0];
+			Item bodyItem = player.armor[1];
+			Item legsItem = player.armor[2];
 
-			if( curr_item != null && !curr_item.IsAir ) {
-				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { curr_item = Main.mouseItem; }
+			if( currItem != null && !currItem.IsAir ) {
+				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) { currItem = Main.mouseItem; }
 
-				var item_info = curr_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				item_info.ConcurrentUses = 0;
-				if( !item_info.IsBroken ) {
-					item_info.UpdateCriticalState( mymod, curr_item );
+				var itemInfo = currItem.GetGlobalItem<DurabilityItemInfo>();
+				itemInfo.ConcurrentUses = 0;
+				if( !itemInfo.IsBroken ) {
+					itemInfo.UpdateCriticalState( currItem );
 				}
 			}
 
-			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
+			if( !headItem.IsAir ) {
+				var head_item_info = headItem.GetGlobalItem<DurabilityItemInfo>();
 				head_item_info.ConcurrentUses = 0;
 
 				if( head_item_info.IsBroken ) {
-					int who = ItemHelpers.CreateItem( player.position, head_item.type, 1, head_item.width, head_item.height, head_item.prefix );
-					ItemHelpers.DestroyItem( head_item );
+					int who = ItemHelpers.CreateItem( player.position, headItem.type, 1, headItem.width, headItem.height, headItem.prefix );
+					ItemHelpers.DestroyItem( headItem );
 
-					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-					new_item_info.KillMe( mymod, new_item );
+					var newItem = Main.item[who];
+					var newItemInfo = newItem.GetGlobalItem<DurabilityItemInfo>();
+					newItemInfo.KillMe( newItem );
 					player.armor[0] = new Item();
 				}
 			}
 
-			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				body_item_info.ConcurrentUses = 0;
+			if( !bodyItem.IsAir ) {
+				var bodyItemInfo = bodyItem.GetGlobalItem<DurabilityItemInfo>();
+				bodyItemInfo.ConcurrentUses = 0;
 
-				if( body_item_info.IsBroken ) {
-					int who = ItemHelpers.CreateItem( player.position, body_item.type, 1, body_item.width, body_item.height, body_item.prefix );
-					ItemHelpers.DestroyItem( body_item );
+				if( bodyItemInfo.IsBroken ) {
+					int who = ItemHelpers.CreateItem( player.position, bodyItem.type, 1, bodyItem.width, bodyItem.height, bodyItem.prefix );
+					ItemHelpers.DestroyItem( bodyItem );
 
-					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-					new_item_info.KillMe( mymod, new_item );
+					var newItem = Main.item[who];
+					var newItemInfo = newItem.GetGlobalItem<DurabilityItemInfo>();
+					newItemInfo.KillMe( newItem );
 					player.armor[1] = new Item();
 				}
 			}
 
-			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				legs_item_info.ConcurrentUses = 0;
+			if( !legsItem.IsAir ) {
+				var legsItemInfo = legsItem.GetGlobalItem<DurabilityItemInfo>();
+				legsItemInfo.ConcurrentUses = 0;
 
-				if( legs_item_info.IsBroken ) {
-					int who = ItemHelpers.CreateItem( player.position, legs_item.type, 1, legs_item.width, legs_item.height, legs_item.prefix );
-					ItemHelpers.DestroyItem( legs_item );
+				if( legsItemInfo.IsBroken ) {
+					int who = ItemHelpers.CreateItem( player.position, legsItem.type, 1, legsItem.width, legsItem.height, legsItem.prefix );
+					ItemHelpers.DestroyItem( legsItem );
 
-					var new_item = Main.item[who];
-					var new_item_info = new_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-					new_item_info.KillMe( mymod, new_item );
+					var newItem = Main.item[who];
+					var newItemInfo = newItem.GetGlobalItem<DurabilityItemInfo>();
+					newItemInfo.KillMe( newItem );
 					player.armor[2] = new Item();
 				}
 			}
@@ -84,8 +84,8 @@ namespace Durability {
 			// Note: Due to a (tML?) bug, this method of copying seems necessary?
 			if( this.ForceCopy != null ) {
 				if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-					var item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
-					item_info.CopyToMe( this.ForceCopy );
+					var itemInfo = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>();
+					itemInfo.CopyToMe( this.ForceCopy );
 				}
 				this.ForceCopy = null;
 			}
@@ -115,7 +115,11 @@ namespace Durability {
 				this.PrevInventory = new Item[len];
 			}
 			for( int i = 0; i < len - 1; i++ ) {
-				this.PrevInventory[i] = this.player.inventory[i].Clone();
+				if( this.player.inventory[i] == null || this.player.inventory[i].IsAir ) {
+					this.PrevInventory[i] = new Item();
+				} else {
+					this.PrevInventory[i] = this.player.inventory[i].Clone();
+				}
 			}
 			this.PrevInventory[len - 1] = Main.mouseItem.Clone();
 
@@ -134,33 +138,33 @@ namespace Durability {
 
 		
 		private void FixPurchasedItemInfo() {
-			Item[] curr_shop = Main.instance.shop[Main.npcShop].item;
-			Item[] curr_inv = (Item[])this.player.inventory.Clone();
-			curr_inv = curr_inv.Concat<Item>( new Item[] { Main.mouseItem.Clone() } ).ToArray();
+			Item[] currShop = Main.instance.shop[Main.npcShop].item;
+			Item[] currInv = (Item[])this.player.inventory.Clone();
+			currInv = currInv.Concat<Item>( new Item[] { Main.mouseItem.Clone() } ).ToArray();
 
-			var shop_changes = ItemFinderHelpers.FindChanges( this.PrevShop, curr_shop );
-			var inv_changes = ItemFinderHelpers.FindChanges( this.PrevInventory, curr_inv );
+			var shopChanges = ItemFinderHelpers.FindChanges( this.PrevShop, currShop );
+			var invChanges = ItemFinderHelpers.FindChanges( this.PrevInventory, currInv );
 
-			if( shop_changes.Count != 1 || inv_changes.Count != 1 ) { return; }
+			if( shopChanges.Count != 1 || invChanges.Count != 1 ) { return; }
 
-			int prev_item_idx = 0;
-			Item prev_item = null;
-			Item curr_item = null;
+			int prevItemIdx = 0;
+			Item prevItem = null;
+			Item currItem = null;
 
-			foreach( var kv in shop_changes ) {
-				if( shop_changes[kv.Key] ) { return; }
-				prev_item = this.PrevShop[ kv.Key ];
-				prev_item_idx = kv.Key;
+			foreach( var kv in shopChanges ) {
+				if( shopChanges[kv.Key] ) { return; }
+				prevItem = this.PrevShop[ kv.Key ];
+				prevItemIdx = kv.Key;
 			}
-			foreach( var kv in inv_changes ) {
-				if( !inv_changes[kv.Key] ) { return; }
-				curr_item = curr_inv[kv.Key];
+			foreach( var kv in invChanges ) {
+				if( !invChanges[kv.Key] ) { return; }
+				currItem = currInv[kv.Key];
 			}
 
-			var prev_info = prev_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
-			var curr_info = curr_item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var prevInfo = prevItem.GetGlobalItem<DurabilityItemInfo>();
+			var currInfo = currItem.GetGlobalItem<DurabilityItemInfo>();
 			
-			this.ForceCopy = prev_info;
+			this.ForceCopy = prevInfo;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 author = hamstar
-version = 2.5.2
+version = 2.5.3
 displayName = Durability
-modReferences = HamstarHelpers@2.0.2
+modReferences = HamstarHelpers@4.2.3
 buildIgnore = *.csproj, *.user, *.bat, obj\*, bin\*, .vs\*, .git\*
 languageVersion = 6
 homepage = http://forums.terraria.org/index.php?threads/durability.52036/

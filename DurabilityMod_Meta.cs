@@ -7,8 +7,8 @@ using HamstarHelpers.Components.Config;
 
 namespace Durability {
 	partial class DurabilityMod : Mod {
-		public static string GithubUserName { get { return "hamstar0"; } }
-		public static string GithubProjectName { get { return "tml-durability-mod"; } }
+		public static string GithubUserName => "hamstar0";
+		public static string GithubProjectName => "tml-durability-mod";
 
 		public static string ConfigFileRelativePath {
 			get { return ConfigurationDataBase.RelativePath + Path.DirectorySeparatorChar + DurabilityConfigData.ConfigFileName; }
@@ -29,10 +29,10 @@ namespace Durability {
 				throw new Exception( "Cannot reset to default configs outside of single player." );
 			}
 
-			var new_config = new DurabilityConfigData();
-			new_config.SetDefaults();
+			var newConfig = new DurabilityConfigData();
+			newConfig.SetDefaults();
 
-			DurabilityMod.Instance.ConfigJson.SetData( new_config );
+			DurabilityMod.Instance.ConfigJson.SetData( newConfig );
 			DurabilityMod.Instance.ConfigJson.SaveFile();
 		}
 	}

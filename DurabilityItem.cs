@@ -9,49 +9,49 @@ using Terraria.ModLoader;
 
 namespace Durability {
     class DurabilityItem : GlobalItem {
-		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color draw_color, Color item_color, Vector2 origin, float scale ) {
+		public override void PostDrawInInventory( Item item, SpriteBatch sb, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
-			if( !item_info.HasDurability( item ) ) { return; }
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			if( !itemInfo.HasDurability( item ) ) { return; }
 			
-			if( !item_info.IsBroken ) {
-				int max = DurabilityItemInfo.CalculateFullDurability( mymod, item );
-				int hp = max - (int)item_info.WearAndTear;
+			if( !itemInfo.IsBroken ) {
+				int max = DurabilityItemInfo.CalculateFullDurability( item );
+				int hp = max - (int)itemInfo.WearAndTear;
 
-				float alpha = 0.6f + (0.05f * item_info.RecentUseDisplayBarAnimate);
+				float alpha = 0.6f + (0.05f * itemInfo.RecentUseDisplayBarAnimate);
 				Color color = HudHealthBarHelpers.GetHealthBarColor( hp, max, alpha );
-				float pos_x = position.X + (((float)frame.Width / 2f) * scale);
-				float pos_y = position.Y + (((float)frame.Height / 2f) * scale);
+				float posX = position.X + (((float)frame.Width / 2f) * scale);
+				float posY = position.Y + (((float)frame.Height / 2f) * scale);
 
-				if( item_info.RecentUseDisplayBarAnimate > 0 ) {
-					item_info.RecentUseDisplayBarAnimate--;
+				if( itemInfo.RecentUseDisplayBarAnimate > 0 ) {
+					itemInfo.RecentUseDisplayBarAnimate--;
 				}
 
 				if( mymod.Config.ShowBar ) {
-					HudHealthBarHelpers.DrawHealthBar( sb, pos_x + 1f, pos_y + 5f, max - (int)item_info.WearAndTear, max, color, 0.8f );
+					HudHealthBarHelpers.DrawHealthBar( sb, posX + 1f, posY + 5f, max - (int)itemInfo.WearAndTear, max, color, 0.8f );
 				}
 
 				if( mymod.Config.ShowNumbers ) {
 					var player = Main.player[ Main.myPlayer ];
-					Item hover_item = Main.HoverItem;
+					Item hoverItem = Main.HoverItem;
 					Item selected = player.inventory[ player.selectedItem ];
 					Item mouse = Main.mouseItem;
 
-					if( (hover_item != null && !hover_item.IsAir && !hover_item.IsNotTheSameAs(item))
+					if( (hoverItem != null && !hoverItem.IsAir && !hoverItem.IsNotTheSameAs(item))
 							|| (selected != null && !selected.IsAir && !selected.IsNotTheSameAs(item))
 							|| (mouse != null && !mouse.IsAir && !mouse.IsNotTheSameAs(item)) ) {
-						Color t_color = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
-						HudHealthBarHelpers.DrawHealthText( sb, pos_x, pos_y, hp, t_color );
+						Color tColor = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
+						HudHealthBarHelpers.DrawHealthText( sb, posX, posY, hp, tColor );
 					}
 				}
 			} else {
-				float pos_x = position.X + (((float)frame.Width / 2f) * scale) - (((float)mymod.DestroyedTex.Width / 2f) * scale);
-				float pos_y = position.Y + (((float)frame.Height / 2f) * scale) - (((float)mymod.DestroyedTex.Height / 2f) * scale);
+				float posX = position.X + (((float)frame.Width / 2f) * scale) - (((float)mymod.DestroyedTex.Width / 2f) * scale);
+				float posY = position.Y + (((float)frame.Height / 2f) * scale) - (((float)mymod.DestroyedTex.Height / 2f) * scale);
 
-				sb.Draw( mymod.DestroyedTex, new Vector2(pos_x, pos_y), Color.White );
+				sb.Draw( mymod.DestroyedTex, new Vector2(posX, posY), Color.White );
 			}
 		}
 
@@ -60,11 +60,11 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
-			int max_loss = item_info.CalculateDurabilityLoss( mymod );
-			if( max_loss == 0 ) { return; }
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			int maxLoss = itemInfo.CalculateDurabilityLoss();
+			if( maxLoss == 0 ) { return; }
 
-			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: " + max_loss ) {
+			var tip = new TooltipLine( mymod, "max_durability_loss", "Durability lost to repairs: " + maxLoss ) {
 				overrideColor = Color.Red
 			};
 			tooltips.Add( tip );
@@ -78,9 +78,9 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return true; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
-			if( item_info.HasDurability( item ) ) {
-				DurabilityItem.CurrentReforgeDurability = item_info;
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			if( itemInfo.HasDurability( item ) ) {
+				DurabilityItem.CurrentReforgeDurability = itemInfo;
 			}
 			return true;
 		}
@@ -89,22 +89,22 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 
-			if( DurabilityItem.CurrentReforgeDurability != null && item_info.HasDurability(item) ) {
-				item_info.CopyToMe( DurabilityItem.CurrentReforgeDurability );
+			if( DurabilityItem.CurrentReforgeDurability != null && itemInfo.HasDurability(item) ) {
+				itemInfo.CopyToMe( DurabilityItem.CurrentReforgeDurability );
 
 				if( mymod.Config.CanRepair ) {
-					item_info.RepairMe( mymod, item );
+					itemInfo.RepairMe( item );
 				}
 			}
 			DurabilityItem.CurrentReforgeDurability = null;
 		}
 
 		public override void OnCraft( Item item, Recipe recipe ) {
-			DurabilityItemInfo item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			DurabilityItemInfo itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 
-			item_info.IsUnbreakable = false;
+			itemInfo.IsUnbreakable = false;
 			//info.IsUnbreakable = info.HasDurability( item );	// Doesn't work?
 		}
 	}

@@ -11,9 +11,9 @@ namespace Durability {
 			if( !mymod.Config.Enabled ) { return; }
 			if( quiet ) { return; }
 			
-			Item head_item = player.armor[0];
-			Item body_item = player.armor[1];
-			Item legs_item = player.armor[2];
+			Item headItem = player.armor[0];
+			Item bodyItem = player.armor[1];
+			Item legsItem = player.armor[2];
 
 			damage = Main.CalculateDamage( (int)damage, this.player.statDefense );
 			if( crit ) { damage *= 2; }
@@ -22,22 +22,22 @@ namespace Durability {
 			if( dmg <= 0 ) { dmg = 1; }
 
 
-			if( !head_item.IsAir ) {
-				var head_item_info = head_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				head_item_info.AddWearAndTear( mymod, head_item, dmg );
-				head_item_info.UpdateCriticalState( (DurabilityMod)this.mod, head_item );
+			if( !headItem.IsAir ) {
+				var head_item_info = headItem.GetGlobalItem<DurabilityItemInfo>();
+				head_item_info.AddWearAndTear( headItem, dmg );
+				head_item_info.UpdateCriticalState( headItem );
 			}
 
-			if( !body_item.IsAir ) {
-				var body_item_info = body_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				body_item_info.AddWearAndTear( mymod, body_item, dmg );
-				body_item_info.UpdateCriticalState( (DurabilityMod)this.mod, body_item );
+			if( !bodyItem.IsAir ) {
+				var body_item_info = bodyItem.GetGlobalItem<DurabilityItemInfo>();
+				body_item_info.AddWearAndTear( bodyItem, dmg );
+				body_item_info.UpdateCriticalState( bodyItem );
 			}
 
-			if( !legs_item.IsAir ) {
-				var legs_item_info = legs_item.GetGlobalItem<DurabilityItemInfo>( mymod );
-				legs_item_info.AddWearAndTear( mymod, legs_item, dmg );
-				legs_item_info.UpdateCriticalState( (DurabilityMod)this.mod, legs_item );
+			if( !legsItem.IsAir ) {
+				var legs_item_info = legsItem.GetGlobalItem<DurabilityItemInfo>();
+				legs_item_info.AddWearAndTear( legsItem, dmg );
+				legs_item_info.UpdateCriticalState( legsItem );
 			}
 		}
 
@@ -52,9 +52,9 @@ namespace Durability {
 						&& proj.type != ProjectileID.ShadowFlameKnife ) {
 					if( item.shoot == proj.type ) {
 						var mymod = (DurabilityMod)this.mod;
-						var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
+						var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 						
-						item_info.AddWearAndTear( mymod, item, 1, mymod.Config.WeaponWearAndTearMultiplier );
+						itemInfo.AddWearAndTear( item, 1, mymod.Config.WeaponWearAndTearMultiplier );
 					}
 				}
 			}
@@ -79,8 +79,8 @@ namespace Durability {
 			if( !mymod.Config.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
-			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			itemInfo.AddWearAndTear( item );
 		}
 
 		public override void OnHitPvp( Item item, Player target, int damage, bool crit ) {
@@ -88,18 +88,18 @@ namespace Durability {
 			if( !mymod.Config.Enabled ) { return; }
 			if( item == null || item.IsAir ) { return; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>(this.mod);
-			item_info.AddWearAndTear( (DurabilityMod)this.mod, item );
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			itemInfo.AddWearAndTear( item );
 		}
 
-		public override void CatchFish( Item fishing_rod, Item bait, int power, int liquid_type, int pool_size, int world_layer, int quest_fish, ref int caught_type, ref bool junk ) {
+		public override void CatchFish( Item fishingRod, Item bait, int power, int liquidType, int poolSize, int worldLayer, int questFish, ref int caughtType, ref bool junk ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
-			if( fishing_rod == null || fishing_rod.IsAir ) { return; }
+			if( fishingRod == null || fishingRod.IsAir ) { return; }
 
-			var item_info = fishing_rod.GetGlobalItem<DurabilityItemInfo>( mymod );
+			var item_info = fishingRod.GetGlobalItem<DurabilityItemInfo>();
 
-			item_info.AddWearAndTear( mymod, fishing_rod, 1, mymod.Config.FishingWearAndTearMultiplier );
+			item_info.AddWearAndTear( fishingRod, 1, mymod.Config.FishingWearAndTearMultiplier );
 		}
 
 		public override bool Shoot( Item item, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack ) {
@@ -107,11 +107,11 @@ namespace Durability {
 			if( !mymod.Config.Enabled ) { return base.Shoot(item, ref position, ref speedX, ref speedY, ref type, ref damage, ref knockBack); }
 			if( item == null || item.IsAir ) { return false; }
 
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( mymod );
-			if( !item_info.HasDurability( item ) ) { return true; }
+			var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
+			if( !itemInfo.HasDurability( item ) ) { return true; }
 			
 			if( item.melee && !item.noMelee && !item.noUseGraphic ) { // Any projectile generating melee
-				item_info.AddWearAndTear( mymod, item, 1, mymod.Config.MeleeProjectileWearAndTearMultiplier );
+				itemInfo.AddWearAndTear( item, 1, mymod.Config.MeleeProjectileWearAndTearMultiplier );
 			}
 			return true;
 		}
@@ -124,21 +124,21 @@ namespace Durability {
 			Player player = this.player;
 			Item item = player.inventory[player.selectedItem];
 
-			if( !item.IsAir && !player.noItems ) {
-				var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			if( item != null && !item.IsAir && !player.noItems ) {
+				var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 
-				if( item_info.IsBroken ) {
+				if( itemInfo.IsBroken ) {
 					player.noItems = true;
 					player.noBuilding = true;
-				} else if( item_info.HasDurability(item) ) {
-					bool is_harpoon = item.type == 160;
-					bool is_fishing_pole = item.fishingPole > 0;
-					bool has_ammo = player.HasAmmo( item, true );	// Somehow works with harpoons and magic (?)
-					bool cant_magic = /*item.magic &&*/ player.statMana < item.mana;
+				} else if( itemInfo.HasDurability(item) ) {
+					bool isHarpoon = item.type == 160;
+					bool isFishingPole = item.fishingPole > 0;
+					bool hasAmmo = player.HasAmmo( item, true );	// Somehow works with harpoons and magic (?)
+					bool cantMagic = /*item.magic &&*/ player.statMana < item.mana;
 					bool trigger = (player.itemTime == 0 && player.controlUseItem && player.releaseUseItem) ||
 						(player.itemTime == 1 && player.controlUseItem && item.autoReuse);
 
-					if( trigger && !item.melee && has_ammo && !is_fishing_pole && !is_harpoon && !cant_magic ) {
+					if( trigger && !item.melee && hasAmmo && !isFishingPole && !isHarpoon && !cantMagic ) {
 						double scale = mymod.Config.WeaponWearAndTearMultiplier;
 
 						if( item.summon ) {
@@ -147,10 +147,10 @@ namespace Durability {
 							scale = mymod.Config.WireWearAndTearMultiplier;
 						}
 
-						item_info.AddWearAndTear( (DurabilityMod)this.mod, item, 1, scale );
+						itemInfo.AddWearAndTear( item, 1, scale );
 						if( Main.mouseItem != null && !Main.mouseItem.IsAir ) {
-							var mouse_item_info = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>( this.mod );
-							mouse_item_info.AddWearAndTear( (DurabilityMod)this.mod, Main.mouseItem, 1, scale );
+							var mouseItemInfo = Main.mouseItem.GetGlobalItem<DurabilityItemInfo>();
+							mouseItemInfo.AddWearAndTear( Main.mouseItem, 1, scale );
 						}
 					}
 				}
@@ -163,11 +163,13 @@ namespace Durability {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
 
-			Item item = this.player.inventory[this.player.selectedItem];
-			var item_info = item.GetGlobalItem<DurabilityItemInfo>( this.mod );
+			Item item = this.player.inventory[ this.player.selectedItem ];
+			if( item != null && !item.IsAir ) {
+				var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
 
-			if( !item_info.IsBroken && item_info.IsNowBroken(mymod, item) ) {
-				item_info.KillMe( mymod, item );
+				if( !itemInfo.IsBroken && itemInfo.IsNowBroken( item ) ) {
+					itemInfo.KillMe( item );
+				}
 			}
 		}
 	}

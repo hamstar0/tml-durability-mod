@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace Durability {
 	class DurabilityNPC : GlobalNPC {
-		public override void SetupShop( int type, Chest shop, ref int next_slot ) {
+		public override void SetupShop( int type, Chest shop, ref int nextSlot ) {
 			var mymod = (DurabilityMod)this.mod;
 			if( !mymod.Config.Enabled ) { return; }
 
@@ -17,7 +17,7 @@ namespace Durability {
 			Item item = new Item();
 			item.SetDefaults( this.mod.ItemType("SmithingHammerItem") );
 
-			shop.item[ next_slot++ ] = item;
+			shop.item[ nextSlot++ ] = item;
 		}
 	}
 }
