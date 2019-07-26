@@ -1,5 +1,5 @@
-﻿using HamstarHelpers.Helpers.DebugHelpers;
-using HamstarHelpers.Helpers.PlayerHelpers;
+﻿using HamstarHelpers.Helpers.Debug;
+using HamstarHelpers.Helpers.Players;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -46,16 +46,8 @@ namespace Durability {
 
 			var mymod = (DurabilityMod)this.mod;
 
-			if( Main.netMode == 0 ) {
-				if( !mymod.ConfigJson.LoadFile() ) {
-					mymod.ConfigJson.SaveFile();
-					ErrorLogger.Log( "Durability config " + mymod.Version.ToString() + " created (ModPlayer.OnEnterWorld())." );
-				}
-			}
-
 			if( mymod.Config.DebugModeInfo ) {
-				bool _;
-				LogHelpers.Alert( player.name + " joined (" + PlayerIdentityHelpers.GetProperUniqueId( player ) + ")" );
+				LogHelpers.Alert( player.name + " joined (" + PlayerIdentityHelpers.GetUniqueId( player ) + ")" );
 			}
 
 			if( Main.netMode == 0 ) {

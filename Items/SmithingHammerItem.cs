@@ -1,4 +1,6 @@
-using HamstarHelpers.Helpers.ItemHelpers;
+using HamstarHelpers.Helpers.Debug;
+using HamstarHelpers.Helpers.Items;
+using HamstarHelpers.Helpers.Items.Attributes;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -99,7 +101,7 @@ namespace Durability.Items {
 
 				if( item != null && !item.IsAir ) {
 					var itemInfo = item.GetGlobalItem<DurabilityItemInfo>();
-					canRepair = itemInfo.CanRepair( mymod, item );
+					canRepair = itemInfo.CanRepair( item );
 				}
 			}
 			return canRepair;
@@ -107,11 +109,11 @@ namespace Durability.Items {
 
 		public override void OnCraft( Item item ) {
 			if( this.PrevInfo == null ) {
-				ErrorLogger.Log( "Could not find previous WearAndTear info for " + item.Name + " (" + item.type + ")" );
+				LogHelpers.Alert( "Could not find previous WearAndTear info for " + item.Name + " (" + item.type + ")" );
 				return;
 			}
 			if( item.type != this.ItemType ) {
-				ErrorLogger.Log( "Mismatched item type for " + item.Name + ": Found " + item.type + ", expected "+this.ItemType );
+				LogHelpers.Alert( "Mismatched item type for " + item.Name + ": Found " + item.type + ", expected "+this.ItemType );
 				return;
 			}
 			

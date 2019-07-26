@@ -1,26 +1,21 @@
 ﻿using Terraria.GameContent.Achievements;
 using Terraria.ModLoader;
 using Terraria;
-using System.IO;
 using Microsoft.Xna.Framework.Graphics;
-using Durability.NetProtocol;
 using System;
-using HamstarHelpers.Components.Config;
-using HamstarHelpers.Helpers.TmlHelpers.ModHelpers;
-using HamstarHelpers.Helpers.TmlHelpers;
 using HamstarHelpers.Components.Errors;
+using HamstarHelpers.Helpers.TModLoader.Mods;
 
 
 namespace Durability {
 	partial class DurabilityMod : Mod {
 		public static DurabilityMod Instance { get; private set; }
-		
+
 
 
 		////////////////
 
-		public JsonConfig<DurabilityConfigData> ConfigJson { get; private set; }
-		public DurabilityConfigData Config => this.ConfigJson.Data;
+		public DurabilityConfig Config => this.GetConfig<DurabilityConfig>();
 
 		public Texture2D DestroyedTex { get; private set; }
 
@@ -30,51 +25,23 @@ namespace Durability {
 
 		public DurabilityMod() {
 			this.DestroyedTex = null;
-			this.ConfigJson = new JsonConfig<DurabilityConfigData>( DurabilityConfigData.ConfigFileName, ConfigurationDataBase.RelativePath,
-				new DurabilityConfigData() );
 		}
 
 		////////////////
 
 		public override void Load() {
-			string depErr = TmlHelpers.ReportBadDependencyMods( this );
-			if( depErr != null ) { throw new HamstarException( depErr ); }
-
 			DurabilityMod.Instance = this; 
 
 			if( Main.netMode != 2 ) {   // Not server
-				this.DestroyedTex = ModLoader.GetTexture( "Terraria/MapDeath" );
+				this.DestroyedTex = ModContent.GetTexture( "Terraria/MapDeath" );
 			}
 
-			this.LoadConfig();
 			AchievementsHelper.OnTileDestroyed += this.MyOnTileDestroyedEvent;
-		}
-		
-		private void LoadConfig() {
-			if( !this.ConfigJson.LoadFile() ) {
-				this.ConfigJson.SaveFile();
-			}
-
-			if( this.Config.UpdateToLatestVersion() ) {
-				ErrorLogger.Log( "Durability updated to " + this.Version.ToString() );
-				this.ConfigJson.SaveFile();
-			}
 		}
 
 		public override void Unload() {
 			DurabilityMod.Instance = null;
 			AchievementsHelper.OnTileDestroyed -= this.MyOnTileDestroyedEvent;
-		}
-		
-
-		////////////////
-
-		public override void HandlePacket( BinaryReader reader, int whoAmI ) {
-			if( Main.netMode == 1 ) {
-				ClientPacketHandlers.HandlePacket( reader );
-			} else if( Main.netMode == 2 ) {
-				ServerPacketHandlers.HandlePacket( reader, whoAmI );
-			}
 		}
 
 

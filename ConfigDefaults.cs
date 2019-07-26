@@ -1,308 +1,379 @@
-﻿using System;
+﻿using HamstarHelpers.Helpers.Items;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.Serialization;
+using Terraria.ID;
+using Terraria.ModLoader.Config;
 
 
 namespace Durability {
-	// Clarification of terms:
-	//	'wear and tear'		Accumulated damage to tool or armor.
-	//	'durability'		Amount of wear and tear before tool or armor breaks.
-	public class DurabilityConfigData {
-		public readonly static string ConfigFileName = "Durability Config.json";
+	public class DurabilityConfig : ModConfig {
+		public override ConfigScope Mode => ConfigScope.ServerSide;
 
 
 		////////////////
 
-		public string VersionSinceUpdate = "";
-
+		[Label("Enable debug info mode")]
 		public bool DebugModeInfo = false;
 
+
+		[Label("Enable mod (otherwise library mode)")]
+		[DefaultValue( true )]
 		public bool Enabled = true;
 
+
+		[Label( "Durability calculation factor (additive)" )]
+		[Range(0, Int32.MaxValue)]
+		[DefaultValue( 50 )]
 		public int DurabilityAdditive = 50;
+
+		[Label( "Durability calculation factor (multiplier)" )]
+		[Range(0f, Single.MaxValue)]
+		[DefaultValue( 0.5f )]
 		public float DurabilityMultiplier = 0.5f;
+
+		[Label( "Durability calculation factor (exponent)" )]
+		[Range( Single.MinValue, Single.MaxValue )]
+		[DefaultValue( 1.56f )]
 		public float DurabilityExponent = 1.56f;
 
-		public bool CanRepair = true;
-		public bool CanRepairBroken = true;
-		public int RepairAmount = 250;
 
+		[Label( "Non-tool-or-armor durability calculation factor (multiplier)" )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float NonToolOrArmorDurabilityMultiplier = 1f;
+
+		[Label( "Armor durability calculation factor (multiplier)" )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 2f )]
 		public float ArmorDurabilityMultiplier = 2f;
+
+
+		[Label( "Tool durability calculation factor (multiplier)" )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 2f )]
 		public float ToolDurabilityMultiplier = 2f;
 
+		[Label( "Custom item durability calculation factors (multipliers)" )]
+		public Dictionary<string, float> CustomDurabilityMultipliers;
+
+
+		[Label( "Can items be repaired" )]
+		[DefaultValue( true )]
+		public bool CanRepair = true;
+
+		[Label( "Can broken items be repaired" )]
+		[DefaultValue( true )]
+		public bool CanRepairBroken = true;
+
+		[Label( "Amount per repair" )]
+		[Range( 0, Int32.MaxValue )]
+		[DefaultValue( 250 )]
+		public int RepairAmount = 250;
+
+		[Label( "Max durability lost per repair" )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 25f )]
 		public float MaxDurabilityLostPerRepair = 25f;
 
+
+		[Label( "Durability percent before critical warning" )]
+		[Range( 0f, 1f )]
+		[DefaultValue( 0.2f )]
 		public float CriticalWarningPercent = 0.2f;
 
-		public IDictionary<string, float> CustomDurabilityMultipliers = new Dictionary<string, float>(); 
 
+		[Label( "Show durability quantity" )]
+		[DefaultValue( true )]
 		public bool ShowNumbers = true;
+
+		[Label( "Show durability gauge bar" )]
+		[DefaultValue( true )]
 		public bool ShowBar = true;
 
+
+		[Label( "General item wear and tear calculation factor (multiplier)" )]
+		[Tooltip("'Wear and tear' is to durability loss what armor is to hp.")]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float GeneralWearAndTearMultiplier = 1f;
+
+		[Label( "Armor item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float ArmorWearAndTearMultiplier = 1f;
+
+		[Label( "Tool item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 0.5f )]
 		public float ToolWearAndTearMultiplier = 0.5f;
+
+		[Label( "Weapon item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float WeaponWearAndTearMultiplier = 1f;
+
+		[Label( "Fishing item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 10f )]
 		public float FishingWearAndTearMultiplier = 10f;
+
+		[Label( "Grapple item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float GrappleWearAndTearMultiplier = 1f;
+
+		[Label( "Summon item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 40f )]
 		public float SummonWearAndTearMultiplier = 40f;
+
+		[Label( "Wire item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float WireWearAndTearMultiplier = 1f;
+
+		[Label( "Melee projectile item wear and tear calculation factor (multiplier)" )]
+		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
+		[Range( 0f, Single.MaxValue )]
+		[DefaultValue( 1f )]
 		public float MeleeProjectileWearAndTearMultiplier = 1f;
 
 
-		public string _OLD_SETTINGS_BELOW = "";
-		public float NonMaxToolOrArmorDurabilityMultiplier = 1f;
-		public float ArmorMaxDurabilityMultiplier = 2f;
-		public float ToolMaxDurabilityMultiplier = 2f;
-
-
 
 		////////////////
 
-		public void SetDefaults() {
-			this.CustomDurabilityMultipliers = new Dictionary<string, float> {
-				// Ore items get durability boost
-				{ "Iron Helmet", 1.15f },
-				{ "Iron Chainmail", 1.15f },
-				{ "Iron Greaves", 1.15f },
-				{ "Iron Axe", 1.15f },
-				{ "Iron Hammer", 1.15f },
-				{ "Iron Pickaxe", 1.15f },
-				{ "Iron Shortsword", 1.15f },
-				{ "Iron Broadsword", 1.15f },
-				//{ "Iron Bow", 1.15f },
-				{ "Lead Helmet", 1.15f },
-				{ "Lead Chainmail", 1.15f },
-				{ "Lead Greaves", 1.15f },
-				{ "Lead Axe", 1.15f },
-				{ "Lead Hammer", 1.15f },
-				{ "Lead Pickaxe", 1.15f },
-				{ "Lead Shortsword", 1.15f },
-				{ "Lead Broadsword", 1.15f },
-				//{ "Lead Bow", 1.15f },
-				{ "Silver Helmet", 1.15f },
-				{ "Silver Chainmail", 1.15f },
-				{ "Silver Greaves", 1.15f },
-				{ "Silver Axe", 1.15f },
-				{ "Silver Hammer", 1.15f },
-				{ "Silver Pickaxe", 1.15f },
-				{ "Silver Shortsword", 1.15f },
-				{ "Silver Broadsword", 1.15f },
-				//{ "Silver Bow", 1.15f },
-				{ "Tungsten Helmet", 1.15f },
-				{ "Tungsten Chainmail", 1.15f },
-				{ "Tungsten Greaves", 1.15f },
-				{ "Tungsten Axe", 1.15f },
-				{ "Tungsten Hammer", 1.15f },
-				{ "Tungsten Pickaxe", 1.15f },
-				{ "Tungsten Shortsword", 1.15f },
-				{ "Tungsten Broadsword", 1.15f },
-				//{ "Tungsten Bow", 1.15f },
-				{ "Gold Helmet", 1.15f },
-				{ "Gold Chainmail", 1.15f },
-				{ "Gold Greaves", 1.15f },
-				{ "Gold Axe", 1.15f },
-				{ "Gold Hammer", 1.15f },
-				{ "Gold Pickaxe", 1.15f },
-				{ "Gold Shortsword", 1.15f },
-				{ "Gold Broadsword", 1.15f },
-				//{ "Gold Bow", 1.15f },
-				{ "Platinum Helmet", 1.15f },
-				{ "Platinum Chainmail", 1.15f },
-				{ "Platinum Greaves", 1.15f },
-				{ "Platinum Axe", 1.15f },
-				{ "Platinum Hammer", 1.15f },
-				{ "Platinum Pickaxe", 1.15f },
-				{ "Platinum Shortsword", 1.15f },
-				{ "Platinum Broadsword", 1.15f },
-				//{ "Platinum Bow", 1.15f },
-				{ "Cobalt Helmet", 1.15f },
-				{ "Cobalt Mask", 1.15f },
-				{ "Cobalt Hat", 1.15f },
-				{ "Cobalt Breastplate", 1.15f },
-				{ "Cobalt Leggings", 1.15f },
-				{ "Cobalt Chainsaw", 1.15f },
-				{ "Cobalt Waraxe", 1.15f },
-				{ "Cobalt Hammer", 1.15f },
-				{ "Cobalt Pickaxe", 1.15f },
-				{ "Cobalt Drill", 1.15f },
-				{ "Cobalt Sword", 1.15f },
-				{ "Cobalt Naginata", 1.15f },
-				//{ "Cobalt Repeater", 1.15f },
-				{ "Palladium Helmet", 1.15f },
-				{ "Palladium Mask", 1.15f },
-				{ "Palladium Headgear", 1.15f },
-				{ "Palladium Breastplate", 1.15f },
-				{ "Palladium Leggings", 1.15f },
-				{ "Palladium Chainsaw", 1.15f },
-				{ "Palladium Waraxe", 1.15f },
-				{ "Palladium Hammer", 1.15f },
-				{ "Palladium Pickaxe", 1.15f },
-				{ "Palladium Drill", 1.15f },
-				{ "Palladium Sword", 1.15f },
-				{ "Palladium Pike", 1.15f },
-				//{ "Palladium Repeater", 1.15f },
-				{ "Mythril Helmet", 1.15f },
-				{ "Mythril Hat", 1.15f },
-				{ "Mythril Hood", 1.15f },
-				{ "Mythril Chainmail", 1.15f },
-				{ "Mythril Greaves", 1.15f },
-				{ "Mythril Chainsaw", 1.15f },
-				{ "Mythril Waraxe", 1.15f },
-				{ "Mythril Hammer", 1.15f },
-				{ "Mythril Pickaxe", 1.15f },
-				{ "Mythril Drill", 1.15f },
-				{ "Mythril Sword", 1.15f },
-				{ "Mythril Halberd", 1.15f },
-				//{ "Mythril Repeater", 1.15f },
-				{ "Orichalcum Helmet", 1.15f },
-				{ "Orichalcum Mask", 1.15f },
-				{ "Orichalcum Headgear", 1.15f },
-				{ "Orichalcum Breastplate", 1.15f },
-				{ "Orichalcum Leggings", 1.15f },
-				{ "Orichalcum Chainsaw", 1.15f },
-				{ "Orichalcum Waraxe", 1.15f },
-				{ "Orichalcum Hammer", 1.15f },
-				{ "Orichalcum Pickaxe", 1.15f },
-				{ "Orichalcum Drill", 1.15f },
-				{ "Orichalcum Sword", 1.15f },
-				{ "Orichalcum Halberd", 1.15f },
-				//{ "Orichalcum Repeater", 1.15f },
-				{ "Adamantite Helmet", 1.15f },
-				{ "Adamantite Mask", 1.15f },
-				{ "Adamantite Headgear", 1.15f },
-				{ "Adamantite Breastplate", 1.15f },
-				{ "Adamantite Leggings", 1.15f },
-				{ "Adamantite Chainsaw", 1.15f },
-				{ "Adamantite Waraxe", 1.15f },
-				{ "Adamantite Hammer", 1.15f },
-				{ "Adamantite Pickaxe", 1.15f },
-				{ "Adamantite Drill", 1.15f },
-				{ "Adamantite Sword", 1.15f },
-				{ "Adamantite Glaive", 1.15f },
-				//{ "Adamantite Repeater", 1.15f },
-				{ "Titanium Helmet", 1.15f },
-				{ "Titanium Mask", 1.15f },
-				{ "Titanium Headgear", 1.15f },
-				{ "Titanium Breastplate", 1.15f },
-				{ "Titanium Leggings", 1.15f },
-				{ "Titanium Chainsaw", 1.15f },
-				{ "Titanium Waraxe", 1.15f },
-				{ "Titanium Hammer", 1.15f },
-				{ "Titanium Pickaxe", 1.15f },
-				{ "Titanium Drill", 1.15f },
-				{ "Titanium Sword", 1.15f },
-				{ "Titanium Trident", 1.15f },
-				//{ "Titanium Repeater", 1.15f },
-				{ "Frost Helmet", 1.15f },
-				{ "Frost Breastplate", 1.15f },
-				{ "Frost Leggings", 1.15f },
-				{ "Forbidden Mask", 1.15f },
-				{ "Forbidden Robes", 1.15f },
-				{ "Forbidden Treads", 1.15f },
-				//{ "Titanium Repeater", 1.15f },
-				{ "Chlorophyte Helmet", 1.15f },
-				{ "Chlorophyte Mask", 1.15f },
-				{ "Chlorophyte Headgear", 1.15f },
-				{ "Chlorophyte Plate Mail", 1.15f },
-				{ "Chlorophyte Greaves", 1.15f },
-				{ "Chlorophyte Pickaxe", 1.15f },
-				{ "Chlorophyte Drill", 1.15f },
-				{ "Chlorophyte Chainsaw", 1.15f },
-				{ "Chlorophyte Greataxe", 1.15f },
-				{ "Chlorophyte Jackhammer", 1.15f },
-				{ "Chlorophyte Warhammer", 1.15f },
-				{ "Chlorophyte Saber", 1.15f },
-				{ "Chlorophyte Claymore", 1.15f },
-				{ "Chlorophyte Partisan", 1.15f },
-				{ "Turtle Helmet", 1.15f },
-				{ "Turtle Scale Mail", 1.15f },
-				{ "Turtle Leggings", 1.15f },
-				{ "Venom Staff", 1.15f },
-				//{ "Titanium Repeater", 1.15f },
-				{ "Spectre Mask", 1.15f },
-				{ "Spectre Hood", 1.15f },
-				{ "Spectre Robe", 1.15f },
-				{ "Spectre Pants", 1.15f },
-				{ "Spectre Pickaxe", 1.15f },
-				{ "Spectre Hamaxe", 1.15f },
-				{ "Shroomite Mask", 1.15f },
-				{ "Shroomite Headgear", 1.15f },
-				{ "Shroomite Helmet", 1.15f },
-				{ "Shroomite Breastplate ", 1.15f },
-				{ "Shroomite Leggings", 1.15f },
-				{ "Shroomite Digging Claw", 1.15f },
-				{ "Shroomite Hamaxe", 1.15f },
-			
-				// Cactus stuffs very easily acquired
-				{ "Cactus Sword", 0.85f },
-				{ "Cactus Pickaxe", 0.85f },
-				{ "Cactus Helmet", 0.85f },
-				{ "Cactus Breastplate", 0.85f },
-				{ "Cactus Leggings", 0.85f },
-
-				// Meteor stuffs easily (albeit unpredictably) renewable
-				{ "Meteor Helmet", 0.85f },
-				{ "Meteor Suit", 0.85f },
-				{ "Meteor Leggings", 0.85f },
-				{ "Space Gun", 0.85f },
-				{ "Meteor Hamaxe", 0.85f },
-
-				// Demonite stuffs farmable
-				{ "Demon Bow", 0.85f },
-				{ "War Axe of the Night", 0.85f },
-				{ "Light's Bane", 0.85f },
-				{ "Shadow Helmet", 0.85f },
-				{ "Shadow Scalemail", 0.85f },
-				{ "Shadow Greaves", 0.85f },
-				{ "The Breaker", 0.85f },
-				{ "Malaise", 0.85f },
-				{ "Nightmare Pickaxe", 1f }, //0.85f },
-			
-				// Crimtain stuffs farmable
-				{ "Tendon Bow", 0.85f },
-				{ "Blood Lust Cluster", 0.85f },
-				{ "Blood Butcherer", 0.85f },
-				{ "Crimson Helmet", 0.85f },
-				{ "Crimson Scalemail", 0.85f },
-				{ "Crimson Greaves", 0.85f },
-				{ "Flesh Grinder", 0.85f },
-				{ "The Meatball", 0.85f },
-				{ "Deathbringer Pickaxe", 1f },	//0.85f },
-			
-				// Hallowed stuffs (semi) farmable
-				{ "Hallowed Mask", 0.9f },
-				{ "Hallowed Helmet", 0.9f },
-				{ "Hallowed Headgear", 0.9f },
-				{ "Hallowed Plate Mail", 0.9f },
-				{ "Hallowed Greaves", 0.9f },
-				{ "Drax", 1f },	//0.9f },
-				{ "Pickaxe Axe", 1f },	//0.9f },
-				{ "Hallowed Repeater", 0.9f },
-				{ "Excalibur", 0.9f },	//0.9f },
-				{ "Gungnir", 0.9f },
-
-				// 2 shots per fire
-				{ "Vortex Beater", 0.5f }
-			};
-		}
-
-
-		public bool UpdateToLatestVersion() {
-			var newConfig = new DurabilityConfigData();
-			var versSince = this.VersionSinceUpdate != "" ?
-				new Version( this.VersionSinceUpdate ) :
-				new Version();
-
-			if( versSince >= DurabilityMod.Instance.Version ) {
-				return false;
+		[OnDeserialized]
+		internal void OnDeserializedMethod( StreamingContext context ) {
+			if( this.CustomDurabilityMultipliers != null ) {
+				return;
 			}
 
-			this.SetDefaults();
+			this.CustomDurabilityMultipliers = new Dictionary<string, float> {
+				// Ore items get durability boost
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.IronBroadsword), 1.15f },
+				//{ "Iron Bow", 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadBroadsword), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.LeadBow), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverBroadsword), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.SilverBow), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenBroadsword), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.TungstenBow), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldBroadsword), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.GoldBow), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumAxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumHammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumShortsword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumBroadsword), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.PlatinumBow), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltHat), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltNaginata), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.CobaltRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumPike), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.PalladiumRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilHat), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilHood), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilChainmail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilHalberd), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.MythrilRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumHalberd), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.OrichalcumRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantitePickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteGlaive), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.AdamantiteRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumWaraxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumPickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumSword), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumTrident), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.FrostHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.FrostBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AncientBattleArmorPants), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AncientBattleArmorHat), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.AncientBattleArmorShirt), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophytePlateMail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteGreaves), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophytePickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteDrill), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteChainsaw), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteGreataxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteJackhammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteWarhammer), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteSaber), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophyteClaymore), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ChlorophytePartisan), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TurtleHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TurtleScaleMail), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TurtleLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.VenomStaff), 1.15f },
+				//{ ItemIdentityHelpers.GetUniqueKey(ItemID.TitaniumRepeater), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectreMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectreHood), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectreRobe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectrePants), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectrePickaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpectreHamaxe), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteMask), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteHeadgear), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteHelmet), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteBreastplate), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteLeggings), 1.15f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShroomiteDiggingClaw), 1.15f },
+			
+				// Cactus stuffs very easily acquired
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CactusSword), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CactusPickaxe), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CactusHelmet), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CactusBreastplate), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CactusLeggings), 0.85f },
 
-			this.VersionSinceUpdate = DurabilityMod.Instance.Version.ToString();
+				// Meteor stuffs easily (albeit unpredictably) renewable
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MeteorHelmet), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MeteorSuit), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MeteorLeggings), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.SpaceGun), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.MeteorHamaxe), 0.85f },
 
-			return true;
+				// Demonite stuffs farmable
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.DemonBow), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.WarAxeoftheNight), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.LightsBane), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShadowHelmet), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShadowScalemail), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.ShadowGreaves), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TheBreaker), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CorruptYoyo), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.NightmarePickaxe), 1f }, //0.85f },
+			
+				// Crimtain stuffs farmable
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TendonBow), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.BloodLustCluster), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.BloodButcherer), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CrimsonHelmet), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CrimsonScalemail), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.CrimsonGreaves), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.FleshGrinder), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.TheMeatball), 0.85f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.DeathbringerPickaxe), 1f },	//0.85f },
+			
+				// Hallowed stuffs (semi) farmable
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedMask), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedHelmet), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedHeadgear), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedPlateMail), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedGreaves), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.Drax), 1f },	//0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.PickaxeAxe), 1f },	//0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.HallowedRepeater), 0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.Excalibur), 0.9f },	//0.9f },
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.Gungnir), 0.9f },
+
+				// 2 shots per fire
+				{ ItemIdentityHelpers.GetUniqueKey(ItemID.VortexBeater), 0.5f }
+			};
 		}
 	}
 }

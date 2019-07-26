@@ -1,4 +1,4 @@
-﻿using HamstarHelpers.Helpers.HudHelpers;
+﻿using HamstarHelpers.Helpers.HUD;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -22,7 +22,7 @@ namespace Durability {
 				int hp = max - (int)itemInfo.WearAndTear;
 
 				float alpha = 0.6f + (0.05f * itemInfo.RecentUseDisplayBarAnimate);
-				Color color = HudHealthBarHelpers.GetHealthBarColor( hp, max, alpha );
+				Color color = HUDHealthBarHelpers.GetHealthBarColor( hp, max, alpha );
 				float posX = position.X + (((float)frame.Width / 2f) * scale);
 				float posY = position.Y + (((float)frame.Height / 2f) * scale);
 
@@ -31,7 +31,7 @@ namespace Durability {
 				}
 
 				if( mymod.Config.ShowBar ) {
-					HudHealthBarHelpers.DrawHealthBar( sb, posX + 1f, posY + 5f, max - (int)itemInfo.WearAndTear, max, color, 0.8f );
+					HUDHealthBarHelpers.DrawHealthBar( sb, posX + 1f, posY + 5f, max - (int)itemInfo.WearAndTear, max, color, 0.8f );
 				}
 
 				if( mymod.Config.ShowNumbers ) {
@@ -44,7 +44,7 @@ namespace Durability {
 							|| (selected != null && !selected.IsAir && !selected.IsNotTheSameAs(item))
 							|| (mouse != null && !mouse.IsAir && !mouse.IsNotTheSameAs(item)) ) {
 						Color tColor = new Color( Math.Min(color.R + 64, 255), Math.Min(color.G + 64, 255), Math.Min(color.B + 64, 255), color.A );
-						HudHealthBarHelpers.DrawHealthText( sb, posX, posY, hp, tColor );
+						HUDHealthBarHelpers.DrawHealthText( sb, posX, posY, hp, tColor );
 					}
 				}
 			} else {

@@ -1,4 +1,5 @@
-﻿using HamstarHelpers.Helpers.ItemHelpers;
+﻿using HamstarHelpers.Helpers.Items;
+using HamstarHelpers.Helpers.Items.Attributes;
 using Microsoft.Xna.Framework;
 using System;
 using System.IO;
@@ -141,7 +142,7 @@ namespace Durability {
 				durability *= data.NonToolOrArmorDurabilityMultiplier;
 			}
 
-			if( data.CustomDurabilityMultipliers.Keys.Contains(item.Name) ) {
+			if( data.CustomDurabilityMultipliers.ContainsKey(item.Name) ) {
 				durability *= data.CustomDurabilityMultipliers[item.Name];
 			}
 
@@ -218,7 +219,7 @@ namespace Durability {
 
 		public bool CanRepair( Item item ) {
 			var mymod = DurabilityMod.Instance;
-			DurabilityConfigData data = mymod.Config;
+			DurabilityConfig data = mymod.Config;
 			bool can_repair_broken = !this.IsBroken || (data.CanRepairBroken && this.IsBroken);
 
 			return data.CanRepair && can_repair_broken && this.WearAndTear > this.CalculateDurabilityLoss();

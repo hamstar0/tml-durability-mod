@@ -1,5 +1,4 @@
-﻿using Durability.NetProtocol;
-using System;
+﻿using System;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -27,8 +26,6 @@ namespace Durability {
 		}
 
 		private void OnClientConnect() {
-			ClientPacketHandlers.SendSettingsRequestFromClient( player );
-
 			this.OnLocalConnect();
 		}
 

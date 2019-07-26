@@ -1,5 +1,5 @@
-﻿using HamstarHelpers.Helpers.ItemHelpers;
-using HamstarHelpers.Helpers.PlayerHelpers;
+﻿using HamstarHelpers.Helpers.Items;
+using HamstarHelpers.Helpers.Players;
 using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
@@ -90,7 +90,7 @@ namespace Durability {
 				this.ForceCopy = null;
 			}
 
-			long money = PlayerItemHelpers.CountMoney( this.player );
+			long money = PlayerItemHelpers.CountMoney( this.player, false );
 			long spent = this.LastMoney - money;
 
 			if( this.player.talkNPC != -1 ) {
@@ -152,13 +152,19 @@ namespace Durability {
 			Item currItem = null;
 
 			foreach( var kv in shopChanges ) {
-				if( shopChanges[kv.Key] ) { return; }
-				prevItem = this.PrevShop[ kv.Key ];
-				prevItemIdx = kv.Key;
+				int itemIdx = kv.Key;
+				int changeAmt = kv.Value;
+
+				if( changeAmt < 0 ) { return; }
+				prevItem = this.PrevShop[itemIdx];
+				prevItemIdx = itemIdx;
 			}
 			foreach( var kv in invChanges ) {
-				if( !invChanges[kv.Key] ) { return; }
-				currItem = currInv[kv.Key];
+				int itemIdx = kv.Key;
+				int changeAmt = kv.Value;
+
+				if( changeAmt >= 0 ) { return; }
+				currItem = currInv[itemIdx];
 			}
 
 			var prevInfo = prevItem.GetGlobalItem<DurabilityItemInfo>();
