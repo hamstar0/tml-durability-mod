@@ -3,7 +3,6 @@ using Terraria.ModLoader;
 using Terraria;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using HamstarHelpers.Components.Errors;
 using HamstarHelpers.Helpers.TModLoader.Mods;
 
 

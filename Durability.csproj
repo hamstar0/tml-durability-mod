@@ -14,6 +14,7 @@
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
     <None Remove="desktop.ini" />
+    <None Remove="icon.pdn" />
     <None Remove="icon.png" />
     <None Remove="Logo Labeled Mini.png" />
     <None Remove="Logo Labeled.png" />
@@ -23,7 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="HamstarHelpers">
-      <HintPath>..\..\Mod Helpers\v5 (tML11)\HamstarHelpers\bin\Release\HamstarHelpers.dll</HintPath>
+      <HintPath>..\..\Mod Helpers\v5 (tML11)\HamstarHelpers\bin\Release\net452\HamstarHelpers.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

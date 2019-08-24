@@ -6,6 +6,7 @@ using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 using Terraria.ModLoader.IO;
 
 
@@ -142,8 +143,10 @@ namespace Durability {
 				durability *= data.NonToolOrArmorDurabilityMultiplier;
 			}
 
-			if( data.CustomDurabilityMultipliers.ContainsKey(item.Name) ) {
-				durability *= data.CustomDurabilityMultipliers[item.Name];
+			var itemDef = new ItemDefinition( item.type );
+
+			if( data.CustomDurabilityMultipliers.ContainsKey( itemDef ) ) {
+				durability *= data.CustomDurabilityMultipliers[itemDef];
 			}
 
 			return (int)durability;
