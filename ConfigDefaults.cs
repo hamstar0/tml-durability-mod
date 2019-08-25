@@ -150,12 +150,7 @@ namespace Durability {
 
 		////////////////
 
-		[OnDeserialized]
-		internal void OnDeserializedMethod( StreamingContext context ) {
-			if( this.CustomDurabilityMultipliers != null ) {
-				return;
-			}
-
+		public DurabilityConfig() {
 			this.CustomDurabilityMultipliers = new Dictionary<ItemDefinition, float> {
 				// Ore items get durability boost
 				{ new ItemDefinition(ItemID.IronHelmet), 1.15f },
