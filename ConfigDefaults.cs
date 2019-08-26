@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.Serialization;
+using System.Linq;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
 
@@ -368,6 +368,17 @@ namespace Durability {
 				// 2 shots per fire
 				{ new ItemDefinition(ItemID.VortexBeater), 0.5f }
 			};
+		}
+
+		////
+
+		public override ModConfig Clone() {
+			var clone = (DurabilityConfig)base.Clone();
+
+			clone.CustomDurabilityMultipliers = this.CustomDurabilityMultipliers
+				.ToDictionary( kv => kv.Key, kv => kv.Value );
+
+			return clone;
 		}
 	}
 }
