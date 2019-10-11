@@ -1,4 +1,5 @@
-﻿using HamstarHelpers.Helpers.Items;
+﻿using HamstarHelpers.Helpers.Debug;
+using HamstarHelpers.Helpers.Items;
 using HamstarHelpers.Helpers.Items.Attributes;
 using Microsoft.Xna.Framework;
 using System;
@@ -250,11 +251,13 @@ namespace Durability {
 				if( ratio <= mymod.Config.CriticalWarningPercent ) {
 					this.IsCritical = true;
 
-					var player = Main.player[Main.myPlayer];
+					if( Main.netMode != 2 ) {
+						var player = Main.player[Main.myPlayer];
 
-					int ct = CombatText.NewText( player.getRect(), Color.Yellow, item.Name + " damaged!" );
-					Main.combatText[ct].lifeTime = 100;
-					Main.PlaySound( SoundID.NPCHit18, player.position );
+						int ct = CombatText.NewText( player.getRect(), Color.Yellow, item.Name + " damaged!" );
+						Main.combatText[ct].lifeTime = 100;
+						Main.PlaySound( SoundID.NPCHit18, player.position );
+					}
 				}
 			} else {
 				if( ratio > mymod.Config.CriticalWarningPercent ) {
@@ -265,30 +268,37 @@ namespace Durability {
 
 
 		public void KillMe( Item item ) {
+			if( item.owner < 0 || item.owner > 255 ) {
+				LogHelpers.Warn( "Invalid item owner." );
+				return;
+			}
+
 			var mymod = DurabilityMod.Instance;
 
 			this.IsBroken = true;
 			this.WearAndTear = DurabilityItemInfo.CalculateFullDurability( item );
 
-			string itemName = item.Name;
-			Player player = Main.player[ item.owner ];
-			player.AddBuff( 23, 1 );
-			player.noItems = true;
+			if( item.owner != 255 ) {
+				string itemName = item.Name;
+				Player player = Main.player[item.owner];
+				player.AddBuff( 23, 1 );
+				player.noItems = true;
 
-			Main.PlaySound( 13, player.position );
-			Main.PlaySound( 3, player.position, 18 );
+				Main.PlaySound( 13, player.position );
+				Main.PlaySound( 3, player.position, 18 );
 
-			/*item.SetDefaults( 0, false );
-			item.netID = 0;
-			item.type = 0;
-			item.stack = 0;
-			//item.name = "";
-			item.useStyle = 0;
-			item.useTime = 0;
-			item.useAnimation = 0;*/
-			
-			int ct = CombatText.NewText( player.getRect(), Color.DarkGray, itemName + " has broken!", false, true );
-			Main.combatText[ct].lifeTime = 80;
+				/*item.SetDefaults( 0, false );
+				item.netID = 0;
+				item.type = 0;
+				item.stack = 0;
+				//item.name = "";
+				item.useStyle = 0;
+				item.useTime = 0;
+				item.useAnimation = 0;*/
+
+				int ct = CombatText.NewText( player.getRect(), Color.DarkGray, itemName + " has broken!", false, true );
+				Main.combatText[ct].lifeTime = 80;
+			}
 		}
 	}
 }

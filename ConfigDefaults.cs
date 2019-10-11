@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
 
@@ -22,35 +24,61 @@ namespace Durability {
 		public bool Enabled = true;
 
 
+		////
+
+		[Header( "Formula for computing durability:\n" +
+			"  x = Sell value,\n" +
+			"  y = Avg hits per second\n" +
+			"  m = Multiply value (default 0.5)\n" +
+			"  e = Exponent value (default 1.56)\n" +
+			"  a = Addition value (default 50)\n \n" +
+			"m * ( (y/4 * x^e) / (5 + x) ) + a" )]
+		[JsonIgnore]
+		[Label( "Computed durability of a plain Copper Pickaxe" )]
+		public float ComputedCopperPickaxeDurability { get {
+			var item = new Item();
+			item.SetDefaults( ItemID.CopperPickaxe, true );
+			return DurabilityItemInfo.CalculateFullDurability( item );
+		} }
+		[Label( "Computed durability of a plain Copper Shortsword" )]
+		public float ComputedCopperShortswordDurability { get {
+			var item = new Item();
+			item.SetDefaults( ItemID.CopperShortsword, true );
+			return DurabilityItemInfo.CalculateFullDurability( item );
+		} }
+
+		////
+		
+		[Header("Durability formula factors")]
 		[Label( "Durability calculation factor (additive)" )]
-		[Range(0, Int32.MaxValue)]
+		[Range(0, 1000)]
 		[DefaultValue( 50 )]
 		public int DurabilityAdditive = 50;
 
 		[Label( "Durability calculation factor (multiplier)" )]
-		[Range(0f, Single.MaxValue)]
+		[Range(0f, 1000)]
 		[DefaultValue( 0.5f )]
 		public float DurabilityMultiplier = 0.5f;
 
 		[Label( "Durability calculation factor (exponent)" )]
-		[Range( Single.MinValue, Single.MaxValue )]
+		[Range( -10f, 10f )]
 		[DefaultValue( 1.56f )]
 		public float DurabilityExponent = 1.56f;
 
 
 		[Label( "Non-tool-or-armor durability calculation factor (multiplier)" )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float NonToolOrArmorDurabilityMultiplier = 1f;
 
 		[Label( "Armor durability calculation factor (multiplier)" )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 2f )]
 		public float ArmorDurabilityMultiplier = 2f;
 
 
 		[Label( "Tool durability calculation factor (multiplier)" )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 2f )]
 		public float ToolDurabilityMultiplier = 2f;
 
@@ -58,6 +86,7 @@ namespace Durability {
 		public Dictionary<ItemDefinition, float> CustomDurabilityMultipliers;
 
 
+		[Header( "Durability settings" )]
 		[Label( "Can items be repaired" )]
 		[DefaultValue( true )]
 		public bool CanRepair = true;
@@ -67,12 +96,12 @@ namespace Durability {
 		public bool CanRepairBroken = true;
 
 		[Label( "Amount per repair" )]
-		[Range( 0, Int32.MaxValue )]
+		[Range( 0, 10000 )]
 		[DefaultValue( 250 )]
 		public int RepairAmount = 250;
 
 		[Label( "Max durability lost per repair" )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 25f )]
 		public float MaxDurabilityLostPerRepair = 25f;
 
@@ -94,55 +123,55 @@ namespace Durability {
 
 		[Label( "General item wear and tear calculation factor (multiplier)" )]
 		[Tooltip("'Wear and tear' is to durability loss what armor is to hp.")]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float GeneralWearAndTearMultiplier = 1f;
 
 		[Label( "Armor item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float ArmorWearAndTearMultiplier = 1f;
 
 		[Label( "Tool item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 0.5f )]
 		public float ToolWearAndTearMultiplier = 0.5f;
 
 		[Label( "Weapon item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float WeaponWearAndTearMultiplier = 1f;
 
 		[Label( "Fishing item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 10f )]
 		public float FishingWearAndTearMultiplier = 10f;
 
 		[Label( "Grapple item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float GrappleWearAndTearMultiplier = 1f;
 
 		[Label( "Summon item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 40f )]
 		public float SummonWearAndTearMultiplier = 40f;
 
 		[Label( "Wire item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float WireWearAndTearMultiplier = 1f;
 
 		[Label( "Melee projectile item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
-		[Range( 0f, Single.MaxValue )]
+		[Range( 0f, 1000f )]
 		[DefaultValue( 1f )]
 		public float MeleeProjectileWearAndTearMultiplier = 1f;
 

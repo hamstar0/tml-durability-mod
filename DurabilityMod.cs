@@ -14,7 +14,7 @@ namespace Durability {
 
 		////////////////
 
-		public DurabilityConfig Config => this.GetConfig<DurabilityConfig>();
+		public DurabilityConfig Config => ModContent.GetInstance<DurabilityConfig>();
 
 		public Texture2D DestroyedTex { get; private set; }
 
