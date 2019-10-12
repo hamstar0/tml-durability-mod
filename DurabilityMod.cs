@@ -23,14 +23,14 @@ namespace Durability {
 		////////////////
 
 		public DurabilityMod() {
+			DurabilityMod.Instance = this;
+
 			this.DestroyedTex = null;
 		}
 
 		////////////////
 
 		public override void Load() {
-			DurabilityMod.Instance = this; 
-
 			if( Main.netMode != 2 ) {   // Not server
 				this.DestroyedTex = ModContent.GetTexture( "Terraria/MapDeath" );
 			}

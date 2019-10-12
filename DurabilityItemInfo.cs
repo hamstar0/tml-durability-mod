@@ -108,9 +108,8 @@ namespace Durability {
 
 		////////////////
 
-		public static int CalculateFullDurability( Item item ) {
-			var mymod = DurabilityMod.Instance;
-			var data = mymod.Config;
+		public static int CalculateFullDurability( Item item, DurabilityConfig overrideConfig=null ) {
+			var data = overrideConfig ?? DurabilityMod.Instance.Config;
 			double val = item.value;
 			double mul = data.DurabilityMultiplier;
 			double add = data.DurabilityAdditive;
@@ -146,8 +145,8 @@ namespace Durability {
 
 			var itemDef = new ItemDefinition( item.type );
 
-			if( data.CustomDurabilityMultipliers.ContainsKey( itemDef ) ) {
-				durability *= data.CustomDurabilityMultipliers[itemDef];
+			if( data.PerItemDurabilityMultipliers.ContainsKey( itemDef ) ) {
+				durability *= data.PerItemDurabilityMultipliers[itemDef].Multiplier;
 			}
 
 			return (int)durability;
