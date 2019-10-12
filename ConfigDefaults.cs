@@ -10,9 +10,14 @@ using Terraria.ModLoader.Config;
 
 
 namespace Durability {
+	class MyFloatInputElement : FloatInputElement { }
+
+
+
+
 	public class DurabilityMultiplierConfigEntry {
 		[Range( 0f, 100f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof(MyFloatInputElement) )]
 		public float Multiplier { get; set; } = 1f;
 	}
 
@@ -70,33 +75,33 @@ namespace Durability {
 		[Label( "Durability calculation factor (multiplier)" )]
 		[Range(0f, 100)]
 		[DefaultValue( 0.5f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float DurabilityMultiplier { get; set; } = 0.5f;
 
 		[Label( "Durability calculation factor (exponent)" )]
 		[Range( -10f, 10f )]
 		[DefaultValue( 1.56f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float DurabilityExponent { get; set; } = 1.56f;
 
 
 		[Label( "Non-tool-or-armor durability calculation factor (multiplier)" )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float NonToolOrArmorDurabilityMultiplier { get; set; } = 1f;
 
 		[Label( "Armor durability calculation factor (multiplier)" )]
 		[Range( 0f, 1000f )]
 		[DefaultValue( 2f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float ArmorDurabilityMultiplier { get; set; } = 2f;
 
 
 		[Label( "Tool durability calculation factor (multiplier)" )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 2f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float ToolDurabilityMultiplier { get; set; } = 2f;
 
 		[Label( "Custom item durability calculation factors (multipliers)" )]
@@ -120,14 +125,14 @@ namespace Durability {
 		[Label( "Max durability lost per repair" )]
 		[Range( 0f, 1000f )]
 		[DefaultValue( 25f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float MaxDurabilityLostPerRepair { get; set; } = 25f;
 
 
 		[Label( "Durability percent before critical warning" )]
 		[Range( 0f, 1f )]
 		[DefaultValue( 0.2f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float CriticalWarningPercent { get; set; } = 0.2f;
 
 
@@ -144,63 +149,63 @@ namespace Durability {
 		[Tooltip("'Wear and tear' is to durability loss what armor is to hp.")]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float GeneralWearAndTearMultiplier { get; set; } = 1f;
 
 		[Label( "Armor item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float ArmorWearAndTearMultiplier { get; set; } = 1f;
 
 		[Label( "Tool item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 0.5f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float ToolWearAndTearMultiplier { get; set; } = 0.5f;
 
 		[Label( "Weapon item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float WeaponWearAndTearMultiplier { get; set; } = 1f;
 
 		[Label( "Fishing item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 10f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float FishingWearAndTearMultiplier { get; set; } = 10f;
 
 		[Label( "Grapple item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float GrappleWearAndTearMultiplier { get; set; } = 1f;
 
 		[Label( "Summon item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 40f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float SummonWearAndTearMultiplier { get; set; } = 40f;
 
 		[Label( "Wire item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float WireWearAndTearMultiplier { get; set; } = 1f;
 
 		[Label( "Melee projectile item wear and tear calculation factor (multiplier)" )]
 		[Tooltip( "'Wear and tear' is to durability loss what armor is to hp." )]
 		[Range( 0f, 100f )]
 		[DefaultValue( 1f )]
-		[CustomModConfigItem( typeof( FloatInputElement ) )]
+		[CustomModConfigItem( typeof( MyFloatInputElement ) )]
 		public float MeleeProjectileWearAndTearMultiplier { get; set; } = 1f;
 
 
