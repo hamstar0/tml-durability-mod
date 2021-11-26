@@ -139,15 +139,16 @@ namespace Durability {
 		
 		private void FixPurchasedItemInfo() {
 			Item[] currShop = Main.instance.shop[Main.npcShop].item;
-			Item[] currInv = (Item[])this.player.inventory.Clone();
-			currInv = currInv.Concat<Item>( new Item[] { Main.mouseItem.Clone() } ).ToArray();
+			Item[] currInv = (Item[])this.player.inventory.ToArray();
+			currInv = currInv.Concat<Item>(
+				new Item[] { Main.mouseItem.Clone() }
+			).ToArray();
 
-			var shopChanges = ItemFinderHelpers.FindChanges( this.PrevShop, currShop );
-			var invChanges = ItemFinderHelpers.FindChanges( this.PrevInventory, currInv );
+			var shopChanges = Durability.Helpers.Items.ItemFinderHelpers.FindChanges( this.PrevShop, currShop );
+			var invChanges = Durability.Helpers.Items.ItemFinderHelpers.FindChanges( this.PrevInventory, currInv );
 
 			if( shopChanges.Count != 1 || invChanges.Count != 1 ) { return; }
 
-			int prevItemIdx = 0;
 			Item prevItem = null;
 			Item currItem = null;
 
@@ -157,7 +158,6 @@ namespace Durability {
 
 				if( changeAmt < 0 ) { return; }
 				prevItem = this.PrevShop[itemIdx];
-				prevItemIdx = itemIdx;
 			}
 			foreach( var kv in invChanges ) {
 				int itemIdx = kv.Key;

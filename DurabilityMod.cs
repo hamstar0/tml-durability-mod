@@ -1,8 +1,8 @@
-﻿using Terraria.GameContent.Achievements;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria.GameContent.Achievements;
 using Terraria.ModLoader;
 using Terraria;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using HamstarHelpers.Helpers.TModLoader.Mods;
 
 
@@ -31,6 +31,8 @@ namespace Durability {
 		////////////////
 
 		public override void Load() {
+			DurabilityMod.Instance = this;
+
 			if( Main.netMode != 2 ) {   // Not server
 				this.DestroyedTex = ModContent.GetTexture( "Terraria/MapDeath" );
 			}
