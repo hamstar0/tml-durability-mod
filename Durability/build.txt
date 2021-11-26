@@ -1,0 +1,6 @@
+author = hamstar
+version = 2.6.1.1
+displayName = Durability
+modReferences = HamstarHelpers@5.2.0
+buildIgnore = *.csproj, *.user, *.bat, obj\*, bin\*, .vs\*, .git\*
+homepage = http://forums.terraria.org/index.php?threads/durability.52036/
